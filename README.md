@@ -1,18 +1,20 @@
 # Enterprise Network Zero Trust Lab
 
-**A reproducible enterprise security lab built around a detached QEMU/KVM guest.** Follow a request from the simulated WAN through a stateful firewall, then see how network policy, client certificates, and service roles govern access.
+**An isolated QEMU/KVM lab that tests network segmentation and controls access through a stateful firewall, client certificates, and service roles.**
 
-[Architecture](docs/architecture.md) · [Quick start](#run-the-lab) · [Security assessment](docs/assessment.md) · [Evidence index](evidence/README.md)
+[Verified results](#verified-results) · [Architecture](docs/architecture.md) · [Run the lab](#run-the-lab) · [Evidence index](evidence/README.md)
 
 [![Live Grafana dashboard in headed Chromium showing segment health, service availability, WireGuard handshakes, firewall decisions, and IDS telemetry](evidence/add-ons/grafana.png)](evidence/add-ons/grafana.png)
 
 *Live Grafana dashboard captured in Chromium inside the lab. Click the image for full resolution.*
 
-| Portfolio readiness | Baseline checks | Policy paths | Integration checks |
-| :---: | :---: | :---: | :---: |
-| **100/100** | **68 passed** | **49 verified** | **5 passed** |
+## Verified results
 
-The score applies to the laboratory rubric. The assessment records the evidence and the limits of the test environment. [Assessment](docs/assessment.md) · [Baseline results](evidence/results.md) · [Integration results](evidence/add-ons/results.md)
+| Policy paths | Baseline checks | Integration checks |
+| --- | --- | --- |
+| **49 verified** | **68 passed** | **5 passed** |
+
+These results come from an isolated lab guest running simulated traffic. The assessment records the rubric, evidence, and test scope. [Assessment](docs/assessment.md) · [Baseline results](evidence/results.md) · [Integration results](evidence/add-ons/results.md)
 
 ## What the lab demonstrates
 
