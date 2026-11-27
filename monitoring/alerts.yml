@@ -1,0 +1,18 @@
+---
+groups:
+  - name: ztlab
+    rules:
+      - alert: LabServiceUnavailable
+        expr: ztlab_availability == 0
+        for: 30s
+        labels:
+          severity: warning
+      - alert: LabFirewallPolicyDrift
+        expr: ztlab_policy_compliant == 0
+        for: 30s
+        labels:
+          severity: critical
+      - alert: LabIDSCanarySeen
+        expr: increase(ztlab_sensor_alerts_total[2m]) > 0
+        labels:
+          severity: info

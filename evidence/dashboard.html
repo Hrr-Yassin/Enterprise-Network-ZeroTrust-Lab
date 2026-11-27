@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Network Security Lab | Operations</title>
+<style>
+:root{color-scheme:dark;font:14px system-ui,sans-serif;background:#0d131b;color:#dfebf6}
+body{max-width:1260px;margin:auto;padding:30px 35px 50px}
+header{display:flex;gap:16px;align-items:end;justify-content:space-between;margin-bottom:22px}
+h1,h2{margin:0} h1{font-size:31px;font-weight:720} h2{font-size:17px;margin-bottom:10px}
+header p{margin:6px 0 0;color:#9ab0c6} .state{border:1px solid #3e796b;color:#97e9cf;border-radius:5px;padding:8px 12px;white-space:nowrap}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(153px,1fr));gap:10px;margin-bottom:13px}
+.metric,section{background:#151f2b;border:1px solid #26384a;border-radius:7px;padding:15px}
+.metric span{display:block;color:#9ab0c6;margin-bottom:6px}.metric strong{font-size:24px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:1.17fr 1fr;gap:13px;align-items:start} .stack{display:grid;gap:13px}
+table{width:100%;border-collapse:collapse;text-align:left;font-variant-numeric:tabular-nums}
+td,th{padding:7px 6px;border-bottom:1px solid #253649}th{font-size:12px;color:#9ab0c6;font-weight:600}
+tr:last-child td{border:0} ul{padding:0 0 0 18px;font:11px ui-monospace,monospace;line-height:1.6;overflow-wrap:anywhere}
+@media(max-width:830px){body{padding:16px}.grid{grid-template-columns:1fr}header{align-items:start;flex-wrap:wrap}}
+</style></head><body>
+<header><div><h1>Network Security Lab</h1><p>Operations · 2026-11-27T02:30:10+00:00</p></div>
+<div class="state">Policy Compliant</div></header>
+<div class="metrics"><div class="metric"><span>Mirrored packets</span><strong>953</strong></div><div class="metric"><span>Mirrored bytes</span><strong>329,862</strong></div><div class="metric"><span>Firewall allowed · new</span><strong>22</strong></div><div class="metric"><span>Firewall dropped</span><strong>1</strong></div><div class="metric"><span>Observed TCP flows</span><strong>64</strong></div><div class="metric"><span>DNS queries</span><strong>11</strong></div></div>
+<main class="grid"><div class="stack"><section><h2>Network segments</h2><table><thead><tr><th>Segment</th><th>CIDR</th><th>Link</th><th>RX · bytes</th><th>TX · bytes</th></tr></thead><tbody><tr><td>Simulated external network</td><td>192.0.2.0/24</td><td>Up</td><td>54,740</td><td>77,243</td></tr>
+<tr><td>Public services DMZ</td><td>10.77.10.0/24</td><td>Up</td><td>17,792</td><td>11,476</td></tr>
+<tr><td>Employee network</td><td>10.77.20.0/24</td><td>Up</td><td>21,937</td><td>29,700</td></tr>
+<tr><td>Server network, application tier</td><td>10.77.30.0/25</td><td>Up</td><td>108,267</td><td>72,438</td></tr>
+<tr><td>Server network, restricted data tier</td><td>10.77.30.128/25</td><td>Up</td><td>25,358</td><td>16,428</td></tr>
+<tr><td>Identity services network</td><td>10.77.40.0/24</td><td>Up</td><td>3,063</td><td>3,583</td></tr>
+<tr><td>Administration network</td><td>10.77.50.0/24</td><td>Up</td><td>33,305</td><td>56,526</td></tr>
+<tr><td>Security monitoring network</td><td>10.77.60.0/24</td><td>Up</td><td>33,675</td><td>26,836</td></tr>
+<tr><td>Guest network</td><td>10.77.70.0/24</td><td>Up</td><td>4,396</td><td>4,992</td></tr>
+<tr><td>WireGuard remote access</td><td>10.77.90.0/24</td><td>Up</td><td>32,740</td><td>52,300</td></tr></tbody></table></section>
+<section><h2>Service availability</h2><table><thead><tr><th>Service probe</th><th>Status</th><th>Latency · ms</th></tr></thead><tbody><tr><td>Admin service</td><td>Up</td><td>104.8</td></tr>
+<tr><td>Application</td><td>Up</td><td>112.0</td></tr>
+<tr><td>Guest egress</td><td>Up</td><td>32.3</td></tr>
+<tr><td>Lab DNS</td><td>Up</td><td>13.5</td></tr>
+<tr><td>Public DMZ</td><td>Up</td><td>79.6</td></tr>
+<tr><td>Restricted tier</td><td>Up</td><td>97.4</td></tr></tbody></table></section>
+<section><h2>Infrastructure health</h2><table><thead><tr><th>Signal</th><th>Sample</th></tr></thead><tbody><tr><td>Uptime</td><td>166.5 s</td></tr>
+<tr><td>Memory available</td><td>880 / 1447 MiB</td></tr>
+<tr><td>1-minute load</td><td>0.74</td></tr></tbody></table></section></div>
+<div class="stack"><section><h2>WireGuard peers</h2><table><thead><tr><th>Peer</th><th>Authorization</th><th>Handshake</th><th>RX · bytes</th><th>TX · bytes</th></tr></thead><tbody><tr><td>ops vpn</td><td>Allowed</td><td>Recent</td><td>16224</td><td>29064</td></tr>
+<tr><td>user vpn</td><td>Allowed</td><td>Recent</td><td>3200</td><td>4584</td></tr></tbody></table></section>
+<section><h2>Security alerts</h2><table><thead><tr><th>Signature</th><th>Source</th><th>Destination</th></tr></thead><tbody><tr><td>LAB-DNS-CANARY</td><td>10.77.20.10</td><td>10.77.40.10</td></tr></tbody></table></section>
+<section><h2>Recent firewall decisions</h2><ul><li>ALLOW employee_dns UPTIME=163.501600 IN=e-staff OUT=e-id SRC=10.77.20.10 DST=10.77.40.10 PROTO=UDP SPT=36958 DPT=53</li><li>DROP deny_forward UPTIME=164.593983 IN=e-guest OUT=e-app SRC=10.77.70.10 DST=10.77.30.10 PROTO=TCP SPT=35044 DPT=8443</li><li>ALLOW sensor_app_health UPTIME=165.460301 IN=e-sensor OUT=e-app SRC=10.77.60.10 DST=10.77.30.10 PROTO=TCP SPT=43624 DPT=8443</li><li>ALLOW admin_ops UPTIME=165.571219 IN=e-admin OUT=e-app SRC=10.77.50.10 DST=10.77.30.10 PROTO=TCP SPT=39056 DPT=9443</li><li>ALLOW admin_vault UPTIME=165.677006 IN=e-admin OUT=e-vault SRC=10.77.50.10 DST=10.77.30.130 PROTO=TCP SPT=57248 DPT=8443</li><li>ALLOW wan_web UPTIME=165.774734 IN=e-wan OUT=e-dmz SRC=192.0.2.20 DST=10.77.10.10 PROTO=TCP SPT=37902 DPT=443</li><li>ALLOW employee_dns UPTIME=165.854885 IN=e-staff OUT=e-id SRC=10.77.20.10 DST=10.77.40.10 PROTO=UDP SPT=38291 DPT=53</li><li>ALLOW guest_egress UPTIME=165.868964 IN=e-guest OUT=e-wan SRC=10.77.70.10 DST=192.0.2.80 PROTO=TCP SPT=59426 DPT=8080</li></ul></section></div></main></body></html>

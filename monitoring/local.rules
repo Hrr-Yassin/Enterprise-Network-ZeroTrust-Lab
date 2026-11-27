@@ -1,0 +1,1 @@
+alert dns any any -> any 53 (msg:"ZTLAB synthetic DNS canary"; dns.query; content:"ids-check.lab.test"; nocase; startswith; endswith; sid:9900101; rev:1;)

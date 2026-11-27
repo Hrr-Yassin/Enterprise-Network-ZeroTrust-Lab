@@ -1,0 +1,12 @@
+/.work/
+__pycache__/
+*.pyc
+*.pem
+*.key
+*.p12
+*.pfx
+*.wg
+*.qcow2
+*.iso
+*.pcap*
+!evidence/synthetic-dns.pcap

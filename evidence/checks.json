@@ -1,0 +1,482 @@
+{
+  "checks": [
+    {
+      "id": "guest_no_uplink",
+      "area": "isolation",
+      "policy_row": null,
+      "passed": true,
+      "result": "Root guest and edge have no default route, the WAN is a local bridge, and edge IPv6 is disabled"
+    },
+    {
+      "id": "wan_web_tcp",
+      "area": "allow",
+      "policy_row": "wan_web",
+      "passed": true,
+      "result": "HTTP 200; DNAT backend saw 192.0.2.20; allow counter +1"
+    },
+    {
+      "id": "wan_vpn_user_udp",
+      "area": "allow",
+      "policy_row": "wan_vpn_user",
+      "passed": true,
+      "result": "user_vpn authenticated and used its assigned service; allow counter +1"
+    },
+    {
+      "id": "wan_vpn_ops_udp",
+      "area": "allow",
+      "policy_row": "wan_vpn_ops",
+      "passed": true,
+      "result": "ops_vpn authenticated and used its assigned service; allow counter +1"
+    },
+    {
+      "id": "employee_app_tcp",
+      "area": "allow",
+      "policy_row": "employee_app",
+      "passed": true,
+      "result": "HTTP 200; allow counter +1"
+    },
+    {
+      "id": "employee_dns_udp",
+      "area": "allow",
+      "policy_row": "employee_dns",
+      "passed": true,
+      "result": "DNS UDP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "employee_dns_tcp",
+      "area": "allow",
+      "policy_row": "employee_dns",
+      "passed": true,
+      "result": "DNS TCP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "employee_egress_tcp",
+      "area": "allow",
+      "policy_row": "employee_egress",
+      "passed": true,
+      "result": "HTTP 200; SNAT backend saw 192.0.2.1; allow counter +1"
+    },
+    {
+      "id": "dmz_dns_udp",
+      "area": "allow",
+      "policy_row": "dmz_dns",
+      "passed": true,
+      "result": "DNS UDP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "dmz_dns_tcp",
+      "area": "allow",
+      "policy_row": "dmz_dns",
+      "passed": true,
+      "result": "DNS TCP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "guest_dns_udp",
+      "area": "allow",
+      "policy_row": "guest_dns",
+      "passed": true,
+      "result": "DNS UDP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "guest_dns_tcp",
+      "area": "allow",
+      "policy_row": "guest_dns",
+      "passed": true,
+      "result": "DNS TCP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "guest_egress_tcp",
+      "area": "allow",
+      "policy_row": "guest_egress",
+      "passed": true,
+      "result": "HTTP 200; SNAT backend saw 192.0.2.1; allow counter +1"
+    },
+    {
+      "id": "admin_dns_udp",
+      "area": "allow",
+      "policy_row": "admin_dns",
+      "passed": true,
+      "result": "DNS UDP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "admin_dns_tcp",
+      "area": "allow",
+      "policy_row": "admin_dns",
+      "passed": true,
+      "result": "DNS TCP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "admin_ops_tcp",
+      "area": "allow",
+      "policy_row": "admin_ops",
+      "passed": true,
+      "result": "HTTP 200; allow counter +1"
+    },
+    {
+      "id": "admin_vault_tcp",
+      "area": "allow",
+      "policy_row": "admin_vault",
+      "passed": true,
+      "result": "HTTP 200; allow counter +1"
+    },
+    {
+      "id": "admin_dashboard_tcp",
+      "area": "allow",
+      "policy_row": "admin_dashboard",
+      "passed": true,
+      "result": "HTTP 200; allow counter +1"
+    },
+    {
+      "id": "user_app_tcp",
+      "area": "allow",
+      "policy_row": "user_app",
+      "passed": true,
+      "result": "HTTP 200; allow counter +1"
+    },
+    {
+      "id": "user_dns_udp",
+      "area": "allow",
+      "policy_row": "user_dns",
+      "passed": true,
+      "result": "DNS UDP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "user_dns_tcp",
+      "area": "allow",
+      "policy_row": "user_dns",
+      "passed": true,
+      "result": "DNS TCP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "ops_dns_udp",
+      "area": "allow",
+      "policy_row": "ops_dns",
+      "passed": true,
+      "result": "DNS UDP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "ops_dns_tcp",
+      "area": "allow",
+      "policy_row": "ops_dns",
+      "passed": true,
+      "result": "DNS TCP returned 10.77.30.10; allow counter +1"
+    },
+    {
+      "id": "ops_admin_tcp",
+      "area": "allow",
+      "policy_row": "ops_admin",
+      "passed": true,
+      "result": "HTTP 200; allow counter +1"
+    },
+    {
+      "id": "ops_vault_tcp",
+      "area": "allow",
+      "policy_row": "ops_vault",
+      "passed": true,
+      "result": "HTTP 200; allow counter +1"
+    },
+    {
+      "id": "ops_dashboard_tcp",
+      "area": "allow",
+      "policy_row": "ops_dashboard",
+      "passed": true,
+      "result": "HTTP 200; allow counter +1"
+    },
+    {
+      "id": "sensor_app_health_tcp",
+      "area": "allow",
+      "policy_row": "sensor_app_health",
+      "passed": true,
+      "result": "HTTP 200; allow counter +1"
+    },
+    {
+      "id": "wan_direct_dmz",
+      "area": "drop",
+      "policy_row": "wan_direct_dmz",
+      "passed": true,
+      "result": "Timed out at 10.77.10.10:443; deny_forward +1"
+    },
+    {
+      "id": "wan_private_app",
+      "area": "drop",
+      "policy_row": "wan_private_app",
+      "passed": true,
+      "result": "Timed out at 10.77.30.10:8443; deny_forward +1"
+    },
+    {
+      "id": "wan_unknown_peer",
+      "area": "drop",
+      "policy_row": "wan_unknown_peer",
+      "passed": true,
+      "result": "Timed out at 192.0.2.1:51820; deny_input +1"
+    },
+    {
+      "id": "dmz_private_app",
+      "area": "drop",
+      "policy_row": "dmz_private_app",
+      "passed": true,
+      "result": "Timed out at 10.77.30.10:8443; deny_forward +1"
+    },
+    {
+      "id": "dmz_admin",
+      "area": "drop",
+      "policy_row": "dmz_admin",
+      "passed": true,
+      "result": "Timed out at 10.77.30.10:9443; deny_forward +1"
+    },
+    {
+      "id": "dmz_egress",
+      "area": "drop",
+      "policy_row": "dmz_egress",
+      "passed": true,
+      "result": "Timed out at 192.0.2.80:8080; deny_forward +1"
+    },
+    {
+      "id": "employee_ops",
+      "area": "drop",
+      "policy_row": "employee_ops",
+      "passed": true,
+      "result": "Timed out at 10.77.30.10:9443; deny_forward +1"
+    },
+    {
+      "id": "employee_monitor",
+      "area": "drop",
+      "policy_row": "employee_monitor",
+      "passed": true,
+      "result": "Timed out at 10.77.60.10:8443; deny_forward +1"
+    },
+    {
+      "id": "employee_vault",
+      "area": "drop",
+      "policy_row": "employee_vault",
+      "passed": true,
+      "result": "Timed out at 10.77.30.130:8443; deny_forward +1"
+    },
+    {
+      "id": "guest_app",
+      "area": "drop",
+      "policy_row": "guest_app",
+      "passed": true,
+      "result": "Timed out at 10.77.30.10:8443; deny_forward +1"
+    },
+    {
+      "id": "guest_dmz",
+      "area": "drop",
+      "policy_row": "guest_dmz",
+      "passed": true,
+      "result": "Timed out at 10.77.10.10:443; deny_forward +1"
+    },
+    {
+      "id": "guest_monitor",
+      "area": "drop",
+      "policy_row": "guest_monitor",
+      "passed": true,
+      "result": "Timed out at 10.77.60.10:8443; deny_forward +1"
+    },
+    {
+      "id": "guest_admin",
+      "area": "drop",
+      "policy_row": "guest_admin",
+      "passed": true,
+      "result": "Timed out at 10.77.30.10:9443; deny_forward +1"
+    },
+    {
+      "id": "guest_direct_dns_udp",
+      "area": "drop",
+      "policy_row": "guest_direct_dns_udp",
+      "passed": true,
+      "result": "Timed out at 192.0.2.80:53; deny_forward +1"
+    },
+    {
+      "id": "guest_direct_dns_tcp",
+      "area": "drop",
+      "policy_row": "guest_direct_dns_tcp",
+      "passed": true,
+      "result": "Timed out at 192.0.2.80:53; deny_forward +1"
+    },
+    {
+      "id": "guest_egress_other_port",
+      "area": "drop",
+      "policy_row": "guest_egress_other_port",
+      "passed": true,
+      "result": "Timed out at 192.0.2.80:8081; deny_forward +1"
+    },
+    {
+      "id": "vpn_user_ops",
+      "area": "drop",
+      "policy_row": "vpn_user_ops",
+      "passed": true,
+      "result": "Timed out at 10.77.30.10:9443; deny_forward +1"
+    },
+    {
+      "id": "vpn_user_vault",
+      "area": "drop",
+      "policy_row": "vpn_user_vault",
+      "passed": true,
+      "result": "Timed out at 10.77.30.130:8443; deny_forward +1"
+    },
+    {
+      "id": "vpn_user_monitor",
+      "area": "drop",
+      "policy_row": "vpn_user_monitor",
+      "passed": true,
+      "result": "Timed out at 10.77.60.10:8443; deny_forward +1"
+    },
+    {
+      "id": "vpn_ops_guest",
+      "area": "drop",
+      "policy_row": "vpn_ops_guest",
+      "passed": true,
+      "result": "Timed out at 10.77.70.10:8080; deny_forward +1"
+    },
+    {
+      "id": "app_to_vault",
+      "area": "drop",
+      "policy_row": "app_to_vault",
+      "passed": true,
+      "result": "Timed out at 10.77.30.130:8443; deny_forward +1"
+    },
+    {
+      "id": "vault_to_app",
+      "area": "drop",
+      "policy_row": "vault_to_app",
+      "passed": true,
+      "result": "Timed out at 10.77.30.10:8443; deny_forward +1"
+    },
+    {
+      "id": "sensor_admin",
+      "area": "drop",
+      "policy_row": "sensor_admin",
+      "passed": true,
+      "result": "Timed out at 10.77.30.10:9443; deny_forward +1"
+    },
+    {
+      "id": "unassigned_ingress_source",
+      "area": "isolation",
+      "policy_row": null,
+      "passed": true,
+      "result": "The edge dropped a test packet sourced from an unassigned Guest address"
+    },
+    {
+      "id": "edge_unsolicited_output",
+      "area": "isolation",
+      "policy_row": null,
+      "passed": true,
+      "result": "Denied a new connection from the firewall to the closed WAN simulator"
+    },
+    {
+      "id": "mtls_certificate_required",
+      "area": "identity",
+      "policy_row": null,
+      "passed": true,
+      "result": "- returned rejected (TLSV13_ALERT_CERTIFICATE_REQUIRED)"
+    },
+    {
+      "id": "mtls_untrusted_ca",
+      "area": "identity",
+      "policy_row": null,
+      "passed": true,
+      "result": "foreign returned rejected (TLSV1_ALERT_UNKNOWN_CA)"
+    },
+    {
+      "id": "mtls_valid_certificate_without_role",
+      "area": "identity",
+      "policy_row": null,
+      "passed": true,
+      "result": "unassigned returned 403"
+    },
+    {
+      "id": "mtls_wrong_role",
+      "area": "identity",
+      "policy_row": null,
+      "passed": true,
+      "result": "employee returned 403"
+    },
+    {
+      "id": "mtls_admin_credential_from_guest",
+      "area": "identity",
+      "policy_row": null,
+      "passed": true,
+      "result": "Operator certificate could not reach the management endpoint from Guest"
+    },
+    {
+      "id": "mtls_observer_data_denied",
+      "area": "identity",
+      "policy_row": null,
+      "passed": true,
+      "result": "observer returned 403"
+    },
+    {
+      "id": "tls_service_hostname_mismatch",
+      "area": "identity",
+      "policy_row": null,
+      "passed": true,
+      "result": "employee returned certificate_error (Hostname mismatch, certificate is not valid for 'wrong.lab.test'.)"
+    },
+    {
+      "id": "mtls_role_revocation",
+      "area": "identity",
+      "policy_row": null,
+      "passed": true,
+      "result": "Removed certificate fingerprint, observed HTTP 403, preserved other role and restored HTTP 200"
+    },
+    {
+      "id": "wireguard_individual_revocation",
+      "area": "vpn",
+      "policy_row": null,
+      "passed": true,
+      "result": "Removed one peer from live WireGuard; that peer lost access, ops remained active, then reauthorized"
+    },
+    {
+      "id": "dns_no_external_recursion",
+      "area": "dns",
+      "policy_row": null,
+      "passed": true,
+      "result": "External namespace returned DNS RCODE 5 with no answers"
+    },
+    {
+      "id": "invalid_policy_rejected",
+      "area": "change_control",
+      "policy_row": null,
+      "passed": true,
+      "result": "Kernel validation rejected an invalid candidate and the active policy was preserved"
+    },
+    {
+      "id": "backup_restore_and_drift",
+      "area": "change_control",
+      "policy_row": null,
+      "passed": true,
+      "result": "Detected removal of one permit, observed denial, restored the kernel ruleset snapshot and connectivity"
+    },
+    {
+      "id": "application_failure_and_recovery",
+      "area": "recovery",
+      "policy_row": null,
+      "passed": true,
+      "result": "Stopped the app, measured unavailability, restored it and measured a healthy response"
+    },
+    {
+      "id": "mirrored_dns_and_canary_alert",
+      "area": "monitoring",
+      "policy_row": null,
+      "passed": true,
+      "result": "A mirrored Ethernet frame produced one tcpdump record, a DNS telemetry record and a canary alert"
+    },
+    {
+      "id": "operator_dashboard_and_metrics",
+      "area": "monitoring",
+      "policy_row": null,
+      "passed": true,
+      "result": "Verified authorized HTTPS and metrics responses against live data, including DENY and ALLOW logs"
+    },
+    {
+      "id": "chromium_dashboard_render",
+      "area": "monitoring",
+      "policy_row": null,
+      "passed": true,
+      "result": "Chromium rendered a 1440 \u00d7 1120 PNG from the dashboard HTML fetched through authorized guest HTTPS"
+    }
+  ],
+  "tested_permits": 26,
+  "tested_denials": 23
+}

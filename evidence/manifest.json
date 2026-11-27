@@ -1,0 +1,29 @@
+{
+  "run": "20261127T022719875248Z",
+  "mode": "verify",
+  "accelerator": "tcg",
+  "guest_memory_mib": 1536,
+  "vcpus": 2,
+  "elapsed_seconds": 193.58,
+  "peak_host_qemu_rss_kib": 1466652,
+  "initramfs_bytes": 147698006,
+  "initramfs_sha256": "29186b5fef9e597d88105c1052265caa0b466b61e5988100c2421fda0edb3fe8",
+  "kernel_release": "7.3.4-300.fc45.x86_64",
+  "host_network_attachment": false,
+  "policy_sha256": "92adece84eee2b65aa1157f9b7c7473d929ee136ba5baa6ee64b9139defcc69d",
+  "artifact_sha256": {
+    "synthetic-dns.pcap": "476710a8b02f844421e2cba806a259d6fcb924cc9f629753efb14813226d7209",
+    "packet-summary.txt": "9fd72f3da604119650cbb2df3fe0f42df9df59dd30f84949c428cb0b8c06e840",
+    "dashboard.html": "3d1c142158e73b44f3e26cbe61f79295022521f6e84f8065c57f375445b807f9",
+    "dashboard.png": "d71400934762f8dca763eeec347f078988d3d5dd22341c70217f3db95e788c47",
+    "firewall-backup.nft": "96317944528441da9f6db7f8a84459f0c856ffab4397f0539f780eb2b4d5c3f0",
+    "vpn-events.jsonl": "473c20e1fb10d9669ecb5742a2d51e8655d205532e67422d89705036ba65fb6a",
+    "network.json": "5267107ee80285e6b072f0e588c4e75c414034acbb1b8fe0f73c20a59f45e910",
+    "telemetry.json": "f396595ba48216b38123aba7c5f649e40e7bb2ef5ed3b099a9b2246ebfe012c6",
+    "firewall-events.log": "4869c5a793d74531d3a318641900b37d51c337d526da1433baf8bb503c3283e6",
+    "identity-events.jsonl": "baafcf9c16a4f42b77cb2f3b644c1847aa7ac7c56ba1b9363d74aded0cdd4a34",
+    "checks.json": "3bfb6814512ca51b2cfa82bace5232ecb0a1b87a54d3f6bf4dd100cd8e4db094"
+  },
+  "qemu_exit": 0,
+  "timed_out": false
+}

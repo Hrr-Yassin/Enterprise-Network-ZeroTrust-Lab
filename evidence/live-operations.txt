@@ -1,0 +1,14 @@
+2026-11-27 UTC
+Separate 640 MiB live QEMU guest
+Selected guest console output from status, backup, validate, restore, status, an operator HTTPS probe and key permission verification
+
+Expected 5c0346ba96bc64f125c6274095ba2847f68a81cb5e92cf10f0d8f8928ad29411
+Observed 5c0346ba96bc64f125c6274095ba2847f68a81cb5e92cf10f0d8f8928ad29411
+Saved /run/ztlab/firewall-backups/before-change.nft SHA256 96317944528441da9f6db7f8a84459f0c856ffab4397f0539f780eb2b4d5c3f0
+Candidate passed kernel validation
+Applied candidate. Edge policy SHA256 5c0346ba96bc64f125c6274095ba2847f68a81cb5e92cf10f0d8f8928ad29411
+Expected 5c0346ba96bc64f125c6274095ba2847f68a81cb5e92cf10f0d8f8928ad29411
+Observed 5c0346ba96bc64f125c6274095ba2847f68a81cb5e92cf10f0d8f8928ad29411
+Operator HTTPS status 200, healthy probes 6
+Fixture client and peer keys have mode 0600 9
+LIVE_OPERATOR_EXIT=0

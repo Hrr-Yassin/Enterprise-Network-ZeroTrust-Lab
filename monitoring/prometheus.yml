@@ -1,0 +1,17 @@
+---
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+rule_files:
+  - alerts.yml
+scrape_configs:
+  - job_name: isolated-ztlab
+    scheme: https
+    metrics_path: /metrics
+    tls_config:
+      server_name: monitor.lab.test
+      ca_file: /run/ztlab/observability/services.pem
+      cert_file: /run/ztlab/observability/observer.pem
+      key_file: /run/ztlab/observability/observer.key
+    static_configs:
+      - targets: ["10.77.60.10:8443"]

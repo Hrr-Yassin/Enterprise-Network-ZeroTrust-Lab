@@ -1,0 +1,30 @@
+---
+- name: Build and verify the detached Zero Trust guest
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+  vars:
+    lab_repository: "{{ playbook_dir | dirname }}"
+    lab_python: "{{ ansible_playbook_python }}"
+    lab_browser: false
+    lab_profile_args: "{{ ['--browser', '--timeout', '420'] if lab_browser | bool else [] }}"
+  tasks:
+    - name: Validate inventory, addressing and communication policy
+      ansible.builtin.command:
+        argv: "{{ [lab_python, lab_repository ~ '/labctl.py', 'plan'] }}"
+        chdir: "{{ lab_repository }}"
+      check_mode: false
+      changed_when: false
+
+    - name: Provision the guest and execute the acceptance suite
+      ansible.builtin.command:
+        argv: "{{ [lab_python, lab_repository ~ '/labctl.py', 'verify'] + lab_profile_args }}"
+        chdir: "{{ lab_repository }}"
+      register: lab_acceptance
+      when: not ansible_check_mode
+
+    - name: Display the execution and evidence summary
+      ansible.builtin.debug:
+        var: lab_acceptance.stdout_lines
+      when: not ansible_check_mode

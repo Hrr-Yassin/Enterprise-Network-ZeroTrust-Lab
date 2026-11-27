@@ -1,0 +1,233 @@
+{
+  "uid": "ztlab-observability",
+  "title": "Enterprise Network Zero Trust",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Segment links",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ztlab_segment_link_up",
+          "legendFormat": "{{segment}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Policy compliance",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ztlab_policy_compliant",
+          "legendFormat": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Availability",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ztlab_availability",
+          "legendFormat": "{{service}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "WireGuard handshakes",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ztlab_vpn_peer_recent_handshake",
+          "legendFormat": "{{peer}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Mirrored network traffic",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(ztlab_mirrored_bytes_total[2m])",
+          "legendFormat": "Tap bytes/s"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "New firewall permits",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(ztlab_firewall_new_allowed_packets_total[2m])",
+          "legendFormat": "Allowed packets/s"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Firewall drops",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(ztlab_firewall_dropped_packets_total[2m])",
+          "legendFormat": "Dropped packets/s"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Sensor alerts",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 18,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ztlab_sensor_alerts_total",
+          "legendFormat": "Alerts"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Probe latency",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ztlab_probe_duration_seconds",
+          "legendFormat": "{{service}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "DNS requests",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 24,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(ztlab_dns_queries_total[2m])",
+          "legendFormat": "DNS queries/s"
+        }
+      ]
+    }
+  ]
+}
