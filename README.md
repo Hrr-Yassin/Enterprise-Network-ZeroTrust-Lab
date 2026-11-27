@@ -1,16 +1,40 @@
 # Enterprise Network Zero Trust Lab
 
-A reproducible network security lab for Fedora x86-64. A disposable QEMU guest contains a simulated WAN, nine enterprise and VPN segments, a stateful nftables edge, service-level mTLS, two WireGuard peers, and a passive monitoring interface. Three independent controls can decide an app request. The edge checks the network path, TLS checks the service and client certificates, and the service authorizes the identity for the resource.
+**A reproducible enterprise security lab built around a detached QEMU/KVM guest.** Follow a request from the simulated WAN through a stateful firewall, then see how network policy, client certificates, and service roles govern access.
 
-The QEMU guest starts without a virtual NIC. The WAN is an Ethernet bridge inside the guest. Every service, test target, and packet capture remains inside that guest.
+[Architecture](docs/architecture.md) · [Quick start](#run-the-lab) · [Security assessment](docs/assessment.md) · [Evidence index](evidence/README.md)
 
-**Verified portfolio readiness is 100/100 on the requested lab rubric.** The KVM baseline passed 68 checks, including all 49 communication-matrix paths. The targeted integration run passed five additional checks and preserved the baseline firewall fingerprint. TLS and WireGuard identities also authenticated after fresh enrollment on two independent boots. [Security assessment](docs/assessment.md)
+[![Live Grafana dashboard in headed Chromium showing segment health, service availability, WireGuard handshakes, firewall decisions, and IDS telemetry](evidence/add-ons/grafana.png)](evidence/add-ons/grafana.png)
 
-Suricata detected the mirrored DNS canary and blocked it in a scoped inline exercise. Zeek correlated the DNS and connection records. Prometheus scraped via mTLS and fired the canary alert, Grafana returned live data for all 11 panels, and Ansible applied and checked the guest policy idempotently. Both dashboard views were rendered with headed Chromium in the guest. [Targeted results](evidence/add-ons/results.md)
+*Live Grafana dashboard captured in Chromium inside the lab. Click the image for full resolution.*
+
+| Portfolio readiness | Baseline checks | Policy paths | Integration checks |
+| :---: | :---: | :---: | :---: |
+| **100/100** | **68 passed** | **49 verified** | **5 passed** |
+
+The score applies to the laboratory rubric. The assessment records the evidence and the limits of the test environment. [Assessment](docs/assessment.md) · [Baseline results](evidence/results.md) · [Integration results](evidence/add-ons/results.md)
+
+## What the lab demonstrates
+
+| Area | Verified behavior |
+| --- | --- |
+| **Segmentation** | Ten isolated segments, two server tiers, stateful nftables filtering, NAT, and default-deny forwarding. |
+| **Zero Trust** | Private HTTPS requires mTLS and service-specific authorization. Two WireGuard peers have distinct permissions. Revocation and fresh enrollment were tested. |
+| **Detection and prevention** | Suricata detected the mirrored DNS canary and blocked it in a scoped inline exercise. Zeek correlated the DNS request with its connection record. |
+| **Observability** | Prometheus scraped via mTLS and fired the canary alert. Grafana returned live data for all 11 panels. |
+| **Automation and recovery** | Python and Ansible provision and validate the lab. Tests cover firewall rollback, configuration drift, service recovery, and an idempotent Ansible repeat. |
+
+The guest boots without a host-facing NIC. The WAN simulator, traffic probes, and packet capture all run inside the guest. [Network diagram and addressing](docs/architecture.md) · [Communication matrix](docs/communication-matrix.md) · [Threat model](docs/threat-model.md)
+
+## Operator dashboard
+
+[![Operator dashboard in headed Chromium showing network segments, recent firewall decisions, security alerts, and service health](evidence/add-ons/dashboard-visible.png)](evidence/add-ons/dashboard-visible.png)
+
+*Chromium rendering of a freshly authenticated operator dashboard response. Click the image for full resolution.*
 
 ## Run the lab
 
-Use a readable Fedora kernel under `/boot` with matching modules and local Fedora packages for QEMU, BusyBox, cpio, gzip, kmod, iproute, iproute-tc, nftables, wireguard-tools, dnsmasq, OpenSSL, tcpdump and Python 3. The build uses local binaries and packages. See the deployment guide for the package and resource requirements.
+The base profile runs on Fedora x86-64 with local QEMU and a matching installed kernel. It allocates **2 vCPUs and 640 MiB RAM**. [Prerequisites and recovery](docs/operations.md)
 
 ```sh
 python3 labctl.py plan
@@ -18,26 +42,11 @@ python3 labctl.py verify
 python3 labctl.py report
 ```
 
-Use `python3 labctl.py live` to bring up the services and open the guest console. To render a dashboard screenshot during verification, run `python3 labctl.py verify --browser --timeout 420` with a local Chromium Headless Shell installation.
+Use `python3 labctl.py live` to open the guest console. The targeted workflow separately verifies Suricata, Zeek, Prometheus, Grafana, Ansible, and headed Chromium using verified local packages. [Targeted commands](docs/operations.md#targeted-extension-verification) · [Dependency provenance](evidence/dependency-provenance.json)
 
-Use the targeted workflow to verify Suricata, Zeek, Prometheus, Grafana, Ansible, and headed Chromium from verified local packages. It records its own evidence without rerunning the communication matrix. [Targeted commands](docs/operations.md#targeted-extension-verification) · [Dependency receipt](evidence/dependency-provenance.json)
+## Review the work
 
-| Project material | Contents |
-| --- | --- |
-| [Architecture](docs/architecture.md) | Topology, address plan, trust boundaries, routing and data flows |
-| [Communication matrix](docs/communication-matrix.md) | Allowed paths and selected default-deny probes with evidence IDs |
-| [Policy and identities](docs/policies.md) | Stateful firewall, NAT, DNS, TLS authorization, VPN and sensor design |
-| [Deployment and recovery](docs/operations.md) | Reproduction, inspection, firewall validation, backup, restore and evidence export |
-| [Threat model](docs/threat-model.md) | Assets, threats, mitigating controls and residual risk |
-| [Integration interfaces](docs/integrations.md) | SOC and AD extension points and optional monitoring tools |
-| [Security assessment](docs/assessment.md) | Weighted readiness, validation findings and remaining gaps |
-| [Acceptance results](evidence/results.md) | Per-check observations and coverage of the communication matrix |
-
-## Source and evidence
-
-- [Policy model](config/lab.json) and [generated edge rules](config/edge.nft)
-- [Python controller](labctl.py) and [Ansible playbook](automation/site.yml)
-- [Run manifest](evidence/manifest.json), [firewall events](evidence/firewall-events.log), [role decisions](evidence/identity-events.jsonl), and [one-packet synthetic DNS capture](evidence/synthetic-dns.pcap)
-- [Live Grafana in Chromium](evidence/add-ons/grafana.png) and [operator dashboard in Chromium](evidence/add-ons/dashboard-visible.png)
-
-The [handoff](HANDOFF.md) documents the local repository and evidence export. The source is available under the [MIT License](LICENSE).
+- **Policy** · [Source model](config/lab.json) · [Generated nftables rules](config/edge.nft) · [Identity and VPN design](docs/policies.md)
+- **Automation** · [Python controller](labctl.py) · [Ansible playbook](automation/site.yml) · [Deployment and recovery](docs/operations.md)
+- **Evidence** · [Run manifest](evidence/manifest.json) · [Integration manifest](evidence/add-ons/manifest.json) · [Synthetic DNS capture](evidence/synthetic-dns.pcap)
+- **Handoff** · [Repository handoff](HANDOFF.md) · [Optional integrations](docs/integrations.md) · [MIT License](LICENSE)
