@@ -1,0 +1,20 @@
+{
+  "observed_at_utc": "2026-11-27T02:39:37+00:00",
+  "selinux": "Enforcing",
+  "kvm_device_accessible": true,
+  "link_states": {
+    "DOWN": 6,
+    "UNKNOWN": 1,
+    "UP": 1
+  },
+  "ipv4_main_routes": 7,
+  "ipv6_main_routes": 1,
+  "ipv4_default_routes": 1,
+  "libvirt_domains": 5,
+  "libvirt_running_domains": 0,
+  "libvirt_networks": 6,
+  "libvirt_active_networks": 5,
+  "libvirt_ipv4_prefixes_inspected": 6,
+  "lab_segment_collisions_with_non_default_routes": 0,
+  "lab_segment_collisions_with_libvirt_ipv4_prefixes": 0
+}

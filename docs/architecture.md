@@ -91,8 +91,8 @@ sequenceDiagram
 
 | Technology | Decision |
 | --- | --- |
-| QEMU with TCG | Boot a local Fedora kernel in one detached guest. This execution environment could run QEMU without access to libvirt, host netlink or a usable `/dev/kvm` device. |
-| KVM and libvirt | The launcher can select KVM when `/dev/kvm` is writable. Libvirt inventory and management require their own socket permissions. The reproduced evidence used direct QEMU. |
+| QEMU with KVM | The verified hardware-accelerated guest runs directly under QEMU with no virtual NIC. Read-only libvirt inspection confirmed there was no overlap between the lab segments and the existing libvirt prefixes. |
+| QEMU with TCG | The same acceptance suite also passed with software emulation when the execution environment lacked access to `/dev/kvm`. |
 | GNS3 and Podman | Both were detected locally. This topology needs kernel routing and firewall behavior, which one guest provides with fewer dependencies and without invoking host virtual switches or container networking. |
 | nftables | Linux supplies stateful filtering, NAT, per-rule kernel counters and atomic transactions. Text input and JSON output support review, backup and drift detection. |
 | Direct mTLS and WireGuard | Independent client, service and peer identities can be exercised against live traffic with the installed binaries. |

@@ -17,7 +17,6 @@ MODULES = (
     "nft_chain_nat", "nf_log_syslog", "wireguard", "sch_ingress", "cls_matchall", "act_mirred",
 )
 TOOLS = ("busybox", "ip", "tc", "nft", "modprobe", "openssl", "wg", "dnsmasq", "tcpdump")
-REQUESTED_ENGINES = ("suricata", "zeek", "prometheus", "grafana")
 LIBRARY = re.compile(r"(?:^|\s)(/[^\s]+)\s+\(")
 
 
@@ -175,7 +174,7 @@ def pack(root, target):
                 raise RuntimeError("Could not package the guest initramfs")
 
 
-def build(output, kernel, browser=None):
+def build(output, kernel, browser=None, ids_bundle=None, observability_bundle=None):
     if not kernel.is_file() or not kernel.name.startswith("vmlinuz-"):
         raise RuntimeError("Specify a readable local Fedora /boot/vmlinuz-<release> with matching installed modules")
     version = kernel.name.removeprefix("vmlinuz-")
@@ -190,6 +189,14 @@ def build(output, kernel, browser=None):
         guest_files(staging)
         if browser is not None:
             browser_runtime(staging, browser)
+        if ids_bundle is not None:
+            from lab.ids import stage_bundle
+
+            stage_bundle(staging, ids_bundle)
+        if observability_bundle is not None:
+            from lab.observability import stage_bundle
+
+            stage_bundle(staging, observability_bundle)
         archive = Path(directory) / "lab.cpio.gz"
         pack(staging, archive)
         destination = output / "lab.cpio.gz"

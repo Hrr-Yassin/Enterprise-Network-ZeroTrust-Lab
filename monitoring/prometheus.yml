@@ -9,9 +9,9 @@ scrape_configs:
     scheme: https
     metrics_path: /metrics
     tls_config:
-      server_name: monitor.lab.test
+      server_name: "${monitor_name}"
       ca_file: /run/ztlab/observability/services.pem
       cert_file: /run/ztlab/observability/observer.pem
       key_file: /run/ztlab/observability/observer.key
     static_configs:
-      - targets: ["10.77.60.10:8443"]
+      - targets: ["${monitor_target}"]

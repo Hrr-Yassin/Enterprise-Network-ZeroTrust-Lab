@@ -5,26 +5,55 @@
   become: false
   gather_facts: false
   vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
     lab_repository: "{{ playbook_dir | dirname }}"
     lab_python: "{{ ansible_playbook_python }}"
     lab_browser: false
-    lab_profile_args: "{{ ['--browser', '--timeout', '420'] if lab_browser | bool else [] }}"
+    lab_ids_bundle: ""
+    lab_observability_bundle: ""
+    lab_accelerator: auto
+    lab_profile_args: >-
+      {{ (['--browser'] if lab_browser | bool else [])
+         + (['--ids-bundle', lab_ids_bundle] if lab_ids_bundle else [])
+         + (['--observability-bundle', lab_observability_bundle] if lab_observability_bundle else []) }}
   tasks:
     - name: Validate inventory, addressing and communication policy
       ansible.builtin.command:
-        argv: "{{ [lab_python, lab_repository ~ '/labctl.py', 'plan'] }}"
+        argv: "{{ [lab_python, lab_repository ~ '/labctl.py', 'plan'] + lab_profile_args }}"
         chdir: "{{ lab_repository }}"
+        expand_argument_vars: false
       check_mode: false
       changed_when: false
 
     - name: Provision the guest and execute the acceptance suite
       ansible.builtin.command:
-        argv: "{{ [lab_python, lab_repository ~ '/labctl.py', 'verify'] + lab_profile_args }}"
+        argv: >-
+          {{ [lab_python, lab_repository ~ '/labctl.py', 'verify',
+              '--accelerator', lab_accelerator, '--timeout', '420'] + lab_profile_args }}
         chdir: "{{ lab_repository }}"
+        expand_argument_vars: false
       register: lab_acceptance
       when: not ansible_check_mode
 
-    - name: Display the execution and evidence summary
+    - name: Find this execution's acceptance report
+      ansible.builtin.set_fact:
+        lab_run_lines: "{{ lab_acceptance.stdout_lines | select('match', '^Run artifacts: [.]work/runs/[0-9]{8}T[0-9]{12}Z$') | list }}"
+      when: not ansible_check_mode
+
+    - name: Require one acceptance run identifier
+      ansible.builtin.assert:
+        that: lab_run_lines | length == 1
+      when: not ansible_check_mode
+
+    - name: Verify the acceptance result for this execution
+      ansible.builtin.command:
+        argv: "{{ [lab_python, lab_repository ~ '/labctl.py', 'report', '--run-id', lab_run_lines[0].split('/')[-1]] }}"
+        chdir: "{{ lab_repository }}"
+        expand_argument_vars: false
+      changed_when: false
+      when: not ansible_check_mode
+
+    - name: Display the guest run summary
       ansible.builtin.debug:
         var: lab_acceptance.stdout_lines
       when: not ansible_check_mode

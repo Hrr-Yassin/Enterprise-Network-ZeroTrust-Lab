@@ -12,5 +12,6 @@
 | [Restored firewall rules](firewall-backup.nft) | Guest kernel ruleset captured and restored during the acceptance run |
 | [Canary capture](synthetic-dns.pcap) and [tcpdump decode](packet-summary.txt) | One synthetic DNS request from the guest monitor tap |
 | [Live operator output](live-operations.txt) | Supplementary console check of firewall commands, the private dashboard and key file modes |
+| [Host inventory](host-inventory.json) | Read-only SELinux, KVM, route overlap and libvirt counts with host identifiers omitted |
 
 The packet capture contains reserved lab addresses and the canary name `ids-check.lab.test`. The project generates credentials for each boot. Exported evidence uses fixture labels and omits WireGuard keys, certificate fingerprints, raw boot output and real host addresses.

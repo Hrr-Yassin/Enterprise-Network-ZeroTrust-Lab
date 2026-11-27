@@ -4,7 +4,7 @@ Assessment date 2026-11-27 UTC. The evidence is tied to the execution and artifa
 
 ## Environment and test boundary
 
-The reported host was Fedora 45 on x86-64, with eight logical CPUs, 31 GiB of RAM and 38 GiB available in the workspace filesystem during preflight. The exposed SELinux enforcement file read `1`. The sandbox's `getenforce` output differed from that file. Local inspection found QEMU, libvirt, KVM packages, GNS3 and Podman. The session could read a Fedora kernel and its modules. Host netlink and read-only libvirt calls were denied, and `/dev/kvm` was unavailable to the session. The visible process namespace exposed only loopback routing. Existing host networks, VM inventory and routes remain unverified by this execution.
+The host was Fedora 45 on x86-64, with eight logical CPUs, 31 GiB of RAM and 38 GiB available in the workspace filesystem during initial preflight. Local inspection found QEMU, libvirt, GNS3 and Podman. The follow-up read-only host inspection confirmed SELinux Enforcing, an accessible KVM device, five powered-off libvirt domains and six libvirt networks. No lab segment overlapped with a non-default IPv4 host route or inspected libvirt IPv4 prefix. [Sanitized host inventory](../evidence/host-inventory.json)
 
 All active validation used the detached QEMU guest. The guest edge had connected routes only, the simulated WAN was internal to the guest, and the source and destination addresses belonged to the fixtures. Kernel policy validation, nftables counters, TCP and UDP service responses, TLS decisions, WireGuard handshakes and the monitored packet are independent data sources.
 
@@ -24,16 +24,16 @@ All active validation used the detached QEMU guest. The guest edge had connected
 
 ## Verified run and resource use
 
-The screenshot profile ran for **193.58 seconds** with two vCPUs and 1,536 MiB allocated guest RAM. Peak QEMU resident memory was **1,466,652 KiB**. The compressed initramfs was **147,698,006 bytes**. The base guest allocates 640 MiB and uses no persistent virtual disk. The verification guest powered off after emitting its run evidence. [Run manifest](../evidence/manifest.json)
+The KVM screenshot profile ran for **51.84 seconds** with two vCPUs and 1,536 MiB allocated guest RAM. Peak QEMU resident memory was **893,624 KiB**. The compressed initramfs was **147,708,479 bytes**. The base guest allocates 640 MiB and uses no persistent virtual disk. The verification guest powered off after emitting its run evidence. [Run manifest](../evidence/manifest.json)
 
-The dashboard sample showed 10 up links, six available service probes, two recent WireGuard handshakes, 953 mirrored packets, 64 observed TCP flows and a canary alert. The firewall's counters are scoped to the active ruleset and restart at zero on a ruleset reload. Kernel decisions and the acceptance report preserve earlier policy outcomes. [Dashboard screenshot](../evidence/dashboard.png)
+The dashboard sample showed 10 up links, six available service probes, two recent WireGuard handshakes, 849 mirrored packets, 60 observed TCP flows and a canary alert. The firewall's counters are scoped to the active ruleset and restart at zero on a ruleset reload. Kernel decisions and the acceptance report preserve earlier policy outcomes. [Dashboard screenshot](../evidence/dashboard.png)
 
 A separate 640 MiB live boot verified the operator commands and dashboard probe. Backup, validation and restore preserved the firewall fingerprint. The operator API returned HTTP 200 with six healthy services, and all nine fixture client and VPN key files had mode `0600`. The base initramfs was 29,414,213 bytes. [Live operator output](../evidence/live-operations.txt)
 
 ## Remaining scope
 
-- Suricata and Zeek require local binaries for engine validation and live capture. Prometheus and Grafana require their local packages for scraping and dashboard provisioning. The available runtime used nftables logs, tcpdump and the lab's passive sensor. The repository ships integration assets for the pending engines.
-- The Ansible playbook can be read and parsed locally. Execution requires a local `ansible-core` installation.
+- The offline guest profiles cover live Suricata and Zeek capture, Prometheus scraping and Grafana provisioning. Live engine acceptance still requires the local release files. The baseline capture and dashboard use nftables logs, tcpdump and the lab's passive sensor.
+- The Ansible launcher accepts a local `ansible-core` wheelhouse and can validate the chosen guest profiles in check mode. Running the playbook requires `ansible-core` and its dependencies.
 - The admin control plane is the guest serial console. Operating system compromise in the guest can affect all namespaces. Fixture keys are volatile and the environment omits enterprise enrollment, hardware-backed device posture, 802.1X and identity federation.
 - The lab uses a closed IPv4 WAN with fixed transport addresses. The passive parser's demonstrated coverage is Ethernet TCP SYNs and UDP DNS requests. VPN visibility comes from WireGuard state and inner-flow firewall verdicts. Production scale, Internet transit, failover and inline IPS require separate scenarios.
 

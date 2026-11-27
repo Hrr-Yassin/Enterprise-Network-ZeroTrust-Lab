@@ -4,7 +4,7 @@ A reproducible network security lab for Fedora x86-64. A disposable QEMU guest c
 
 The QEMU guest starts without a virtual NIC. The WAN is an Ethernet bridge inside the guest. Every service, test target, and packet capture remains inside that guest.
 
-**Verified result.** 68 acceptance checks passed, including all 49 communication-matrix paths, certificate and WireGuard revocation, a captured DNS canary, and firewall and service recovery. The weighted portfolio assessment is **90/100**. [Security assessment](docs/assessment.md)
+**Verified result.** The KVM-backed run passed 68 acceptance checks, including all 49 communication-matrix paths, certificate and WireGuard revocation, a captured DNS canary, and firewall and service recovery. The weighted portfolio assessment is **90/100**. [Security assessment](docs/assessment.md)
 
 ## Run the lab
 

@@ -5,71 +5,71 @@
       "name": "Simulated external network",
       "network": "192.0.2.0/24",
       "up": true,
-      "rx_bytes": 54740,
-      "tx_bytes": 77243
+      "rx_bytes": 54240,
+      "tx_bytes": 76362
     },
     {
       "id": "dmz",
       "name": "Public services DMZ",
       "network": "10.77.10.0/24",
       "up": true,
-      "rx_bytes": 17792,
-      "tx_bytes": 11476
+      "rx_bytes": 17247,
+      "tx_bytes": 11314
     },
     {
       "id": "staff",
       "name": "Employee network",
       "network": "10.77.20.0/24",
       "up": true,
-      "rx_bytes": 21937,
-      "tx_bytes": 29700
+      "rx_bytes": 21878,
+      "tx_bytes": 29648
     },
     {
       "id": "app",
       "name": "Server network, application tier",
       "network": "10.77.30.0/25",
       "up": true,
-      "rx_bytes": 108267,
-      "tx_bytes": 72438
+      "rx_bytes": 107902,
+      "tx_bytes": 72045
     },
     {
       "id": "vault",
       "name": "Server network, restricted data tier",
       "network": "10.77.30.128/25",
       "up": true,
-      "rx_bytes": 25358,
-      "tx_bytes": 16428
+      "rx_bytes": 25314,
+      "tx_bytes": 16384
     },
     {
       "id": "identity",
       "name": "Identity services network",
       "network": "10.77.40.0/24",
       "up": true,
-      "rx_bytes": 3105,
-      "tx_bytes": 3625
+      "rx_bytes": 3021,
+      "tx_bytes": 3541
     },
     {
       "id": "admin",
       "name": "Administration network",
       "network": "10.77.50.0/24",
       "up": true,
-      "rx_bytes": 38963,
-      "tx_bytes": 90963
+      "rx_bytes": 38865,
+      "tx_bytes": 90634
     },
     {
       "id": "sensor",
       "name": "Security monitoring network",
       "network": "10.77.60.0/24",
       "up": true,
-      "rx_bytes": 68112,
-      "tx_bytes": 32494
+      "rx_bytes": 67587,
+      "tx_bytes": 32157
     },
     {
       "id": "guest",
       "name": "Guest network",
       "network": "10.77.70.0/24",
       "up": true,
-      "rx_bytes": 4396,
+      "rx_bytes": 4330,
       "tx_bytes": 4992
     },
     {
@@ -77,8 +77,8 @@
       "name": "WireGuard remote access",
       "network": "10.77.90.0/24",
       "up": true,
-      "rx_bytes": 32740,
-      "tx_bytes": 52300
+      "rx_bytes": 32516,
+      "tx_bytes": 52156
     }
   ],
   "firewall_sha256": "5c0346ba96bc64f125c6274095ba2847f68a81cb5e92cf10f0d8f8928ad29411"

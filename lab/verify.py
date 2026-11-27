@@ -7,6 +7,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+from lab import ids, observability
 from lab.guest import PYTHON, TELEMETRY, guard, run, source_namespace, start, write_json
 from lab.model import address, endpoint, firewall
 from lab.probe import perform
@@ -69,6 +70,16 @@ def provision(lab):
         raise RuntimeError(f"Passive sensor exited {sensor.poll()}: {log.read_text()[-900:]}") from error
     snapshot(lab)
     return fixtures
+
+
+def verify_ids(lab):
+    engines = ids.start_engines()
+    try:
+        reply = dns(lab, "employee", name=CANARY)
+        expect(reply.get("answers") == [address(lab.policy, "api")], f"Canary DNS fixture returned {reply}")
+        return ids.check(engines, address(lab.policy, "employee"), address(lab.policy, "resolver"))
+    finally:
+        ids.stop_engines(engines)
 
 
 def snapshot(lab):
@@ -387,11 +398,15 @@ def verify(lab):
     ]
     for name, area, operation in tests:
         suite.check(name, area, operation)
+    if ids.enabled():
+        suite.check("suricata_zeek_live", "monitoring", lambda: verify_ids(lab))
+    if observability.enabled():
+        suite.check("prometheus_grafana_live", "monitoring", observability.verify)
     from lab.browser import BROWSER, screenshot
     if Path(BROWSER).is_file():
         suite.check("chromium_dashboard_render", "monitoring", screenshot)
     for name in ("synthetic-dns.pcap", "packet-summary.txt", "dashboard.html", "dashboard.png", "firewall-backup.nft",
-                 "vpn-events.jsonl"):
+                 "vpn-events.jsonl", "ids-observations.json", "observability.json"):
         path = TELEMETRY / name
         if path.is_file():
             emit(name, path.read_bytes())
@@ -408,6 +423,14 @@ def verify(lab):
 
 def live(lab):
     provision(lab)
+    engines = ids.start_engines() if ids.enabled() else None
+    try:
+        if observability.enabled():
+            observability.launch()
+    except Exception:
+        if engines is not None:
+            ids.stop_engines(engines)
+        raise
     if os.fork() == 0:
         try:
             while True:
