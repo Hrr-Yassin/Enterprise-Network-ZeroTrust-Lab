@@ -2,7 +2,7 @@
 
 import base64
 import hashlib
-import http.client
+import http.client as http_client
 import json
 import os
 import re
@@ -23,7 +23,9 @@ from lab.model import ROOT, address, load
 INSTALL = Path("/opt/ztlab-observability")
 STATE = RUN / "observability"
 MONITORING = ROOT / "monitoring"
-BINARIES = ("prometheus/prometheus", "prometheus/promtool", "grafana/bin/grafana")
+BUNDLED_PROMETHEUS = "grafana/data/plugins-bundled/prometheus"
+BINARIES = ("prometheus/prometheus", "prometheus/promtool", "grafana/bin/grafana",
+            BUNDLED_PROMETHEUS + "/gpx_grafana-prometheus-datasource_linux_amd64")
 LOADER = "/lib64/ld-linux-x86-64.so.2"
 PROMETHEUS_UID = 13001
 GRAFANA_UID = 13002
@@ -87,7 +89,7 @@ def elf_dependencies(path):
     return bool(interpreter), re.findall(r"\(NEEDED\).+\[([A-Za-z0-9_.+-]+)\]", metadata)
 
 
-def library_paths(binaries):
+def library_paths(binaries, preferred=None):
     libraries = {}
     pending = list(binaries)
     known = None
@@ -99,7 +101,7 @@ def library_paths(binaries):
             libraries[LOADER] = Path(LOADER)
         if requires and known is None:
             cache = subprocess.run(("ldconfig", "-p"), check=True, timeout=10, text=True, capture_output=True).stdout
-            known = {}
+            known = dict(preferred or {})
             for name, location in re.findall(r"^\s*(\S+) \([^)]*x86-64[^)]*\) => (\S+)", cache, re.MULTILINE):
                 if "/glibc-hwcaps/" not in location:
                     known.setdefault(name, Path(location))
@@ -108,7 +110,7 @@ def library_paths(binaries):
             if target not in libraries:
                 library = known.get(name)
                 if library is None or not library.is_file():
-                    raise RuntimeError(f"Missing compatible local library for observability release: {name}")
+                    raise RuntimeError(f"Missing compatible local runtime library: {name}")
                 libraries[target] = library
                 pending.append(library)
     return libraries
@@ -130,7 +132,7 @@ def validate_bundle(source):
     if not any(path.suffix == ".js" and Path("build") in path.relative_to(directory / "grafana/public").parents
                for path in assets):
         raise ValueError("Grafana public/build does not contain release JavaScript")
-    assets.extend(asset_files(directory, "grafana/plugins-bundled", optional=True))
+    assets.extend(path for path in asset_files(directory, BUNDLED_PROMETHEUS) if path not in binaries)
     dependencies = library_paths(binaries)
     return ReleaseBundle(directory, (*binaries, defaults, *assets), dependencies)
 
@@ -211,21 +213,29 @@ def configure():
     return target
 
 
-def http(port, path, password=None):
+def http(port, path, password=None, *, payload=None):
     headers = {}
     if password is not None:
         token = base64.b64encode(f"{OPERATOR}:{password}".encode()).decode("ascii")
         headers["Authorization"] = f"Basic {token}"
-    with closing(http.client.HTTPConnection("127.0.0.1", port, timeout=3)) as connection:
-        connection.request("GET", path, headers=headers)
+    method, body = "GET", None
+    if payload is not None:
+        method, body = "POST", json.dumps(payload).encode()
+        headers["Content-Type"] = "application/json"
+    with closing(http_client.HTTPConnection("127.0.0.1", port, timeout=3)) as connection:
+        connection.request(method, path, body, headers)
         response = connection.getresponse()
         return response.status, response.read(2_000_000)
 
 
-def get_json(port, path, password=None):
-    code, body = http(port, path, password)
+def get_json(port, path, password=None, *, payload=None):
+    code, body = http(port, path, password, payload=payload)
     if code != 200:
-        raise RuntimeError(f"Loopback API {path} returned HTTP {code}")
+        try:
+            detail = json.loads(body).get("message", "")
+        except (AttributeError, ValueError):
+            detail = ""
+        raise RuntimeError(f"Loopback API {path} returned HTTP {code}. {str(detail)[:200]}")
     return json.loads(body)
 
 
@@ -238,7 +248,7 @@ def await_http(processes, port, path, timeout=75):
         try:
             if http(port, path)[0] == 200:
                 return
-        except (OSError, http.client.HTTPException):
+        except (OSError, http_client.HTTPException):
             pass
         time.sleep(1)
     raise RuntimeError(f"Loopback service on port {port} did not become ready")
@@ -348,7 +358,57 @@ def evaluated_rules():
     raise RuntimeError("Prometheus did not load and evaluate all observability alert rules")
 
 
+def verify_canary(require_ids):
+    names = ["ztlab_sensor_alerts_total"]
+    if require_ids:
+        names.extend(("ztlab_ids_suricata_alerts", "ztlab_ids_zeek_dns", "ztlab_ids_zeek_connections"))
+    deadline = time.monotonic() + 40
+    while time.monotonic() < deadline:
+        sample = {}
+        for name in names:
+            query = "/api/v1/query?" + urlencode({"query": name})
+            rows = prometheus_data(query).get("result", [])
+            if len(rows) == 1 and rows[0].get("metric", {}).get("job") == JOB:
+                sample[name] = float(rows[0]["value"][1])
+        rules = prometheus_data("/api/v1/rules").get("groups", [])
+        firing = any(rule.get("name") == "LabIDSCanarySeen" and rule.get("state") == "firing"
+                     for group in rules for rule in group.get("rules", []))
+        if set(sample) == set(names) and min(sample.values()) > 0 and firing:
+            return sample
+        time.sleep(0.7)
+    raise RuntimeError("Prometheus did not ingest the IDS canary and fire the expected alert")
+
+
+def loopback_listeners():
+    required = {PROMETHEUS_PORT, GRAFANA_PORT}
+    for file in ("/proc/net/tcp", "/proc/net/tcp6"):
+        for line in Path(file).read_text().splitlines()[1:]:
+            _, endpoint, _, state, *_ = line.split()
+            host, port_hex = endpoint.split(":")
+            port = int(port_hex, 16)
+            if state == "0A" and port in {PROMETHEUS_PORT, GRAFANA_PORT}:
+                if host != "0100007F":
+                    raise RuntimeError("An observability service bound outside the monitor IPv4 loopback")
+                required.discard(port)
+    if required:
+        raise RuntimeError("Expected Prometheus and Grafana loopback listeners are missing")
+
+
+def grafana_samples(expression, password):
+    request = {
+        "from": "now-5m", "to": "now",
+        "queries": [{"refId": "A", "datasource": {"uid": DATASOURCE, "type": "prometheus"},
+                     "expr": expression, "format": "time_series", "instant": True, "range": False,
+                     "intervalMs": 1000, "maxDataPoints": 100}],
+    }
+    result = get_json(GRAFANA_PORT, "/api/ds/query", password, payload=request)["results"]["A"]
+    return [value for frame in result.get("frames", []) for field, values in
+            zip(frame["schema"]["fields"], frame["data"]["values"], strict=True)
+            if field.get("type") == "number" for value in values if isinstance(value, (int, float))]
+
+
 def measure():
+    loopback_listeners()
     password = (STATE / "grafana-operator-password").read_text().strip()
     query = "/api/v1/query?" + urlencode({"query": "ztlab_policy_compliant"})
     dashboard_path = f"/api/dashboards/uid/{DASHBOARD}"
@@ -366,33 +426,51 @@ def measure():
     ]:
         raise RuntimeError("Grafana did not provision the expected dashboard panels")
     direct = prometheus_data(query).get("result", [])
-    proxied = prometheus_data(f"/api/datasources/proxy/uid/{DATASOURCE}{query}", GRAFANA_PORT, password).get("result", [])
-    for result in (direct, proxied):
-        if len(result) != 1 or result[0].get("metric", {}).get("job") != JOB or result[0].get("value", [None])[-1] != "1":
-            raise RuntimeError("Prometheus compliance metric was missing or unhealthy")
+    if len(direct) != 1 or direct[0].get("metric", {}).get("job") != JOB or direct[0].get("value", [None])[-1] != "1":
+        raise RuntimeError("Prometheus compliance metric was missing or unhealthy")
+    if grafana_samples("ztlab_policy_compliant", password) != [1]:
+        raise RuntimeError("Grafana did not return the live compliance value")
+    panels = {}
+    for panel in expected["panels"]:
+        expressions = [target["expr"] for target in panel.get("targets", [])]
+        for expression in expressions:
+            if not grafana_samples(expression, password):
+                raise RuntimeError(f"Grafana panel has no live isolated-lab series: {panel['title']}")
+        panels[panel["title"]] = len(expressions)
     rules = evaluated_rules()
     grafana_health = checked_api(GRAFANA_PORT, "/api/health")
     prometheus_build = prometheus_data("/api/v1/status/buildinfo")
     if grafana_health.get("database") != "ok" or not grafana_health.get("version") or not prometheus_build.get("version"):
         raise RuntimeError("Observability service health responses did not identify the two engines")
     return {
+        "listeners": "monitor namespace IPv4 loopback",
         "prometheus": {"version": prometheus_build["version"], "scrape_job": JOB, "mtls_target_health": "up",
                        "evaluated_alert_rules": rules, "compliance_sample": 1},
         "grafana": {"version": grafana_health["version"], "dashboard_uid": DASHBOARD, "panel_count": len(dashboard["panels"]),
-                    "datasource_uid": DATASOURCE, "proxied_compliance_sample": 1, "unauthenticated_dashboard_rejected": True},
+                    "datasource_uid": DATASOURCE, "proxied_compliance_sample": 1, "unauthenticated_dashboard_rejected": True,
+                    "live_panel_queries": panels},
     }
 
 
-def verify():
+def verify(exercise=None, browser_check=None, require_ids=False):
     processes, target = launch()
     try:
         with source_namespace("monitor"):
             scrape_target(target)
+        if exercise is not None:
+            exercise()
+        with source_namespace("monitor"):
+            signals = verify_canary(require_ids) if exercise is not None else {}
             evidence = measure()
+        if signals:
+            evidence["prometheus"]["canary_alert_fired"] = True
+            evidence["prometheus"]["observed_canary_metrics"] = signals
         evidence["release_sha256"] = json.loads((INSTALL / "manifest.json").read_text())
         write_json(TELEMETRY / "observability.json", evidence)
-        return "Prometheus scraped the mTLS metrics endpoint and Grafana served its provisioned dashboard and a live query"
-    except http.client.HTTPException as error:
+        if browser_check is not None:
+            browser_check()
+        return "Prometheus scraped the mTLS endpoint and Grafana served live data for every provisioned panel"
+    except http_client.HTTPException as error:
         raise RuntimeError(f"Observability loopback request failed: {type(error).__name__}") from error
     finally:
         stop(processes)

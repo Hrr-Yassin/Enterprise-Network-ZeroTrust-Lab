@@ -1,0 +1,120 @@
+{
+  "signed_rpms": [
+    {
+      "component": "Suricata",
+      "version": "8.0.8-1.fc45",
+      "source": "https://dl.fedoraproject.org/pub/fedora/linux/updates/45/Everything/x86_64/Packages/s/suricata-8.0.8-1.fc45.x86_64.rpm",
+      "sha256": "bd50228437347956158b2cc536612e8c741bc5819722e256ce14b5f564553586",
+      "verified_signing_key_fingerprint": "4f50a6114cd5c6976a7f1179655a4b02f577861e"
+    },
+    {
+      "component": "Zeek",
+      "version": "9.0.1-1.1",
+      "source": "https://download.opensuse.org/repositories/security:/zeek/Fedora_44/x86_64/zeek-9.0-core-9.0.1-1.1.x86_64.rpm",
+      "sha256": "66c4b819aeb21223ef08ec395b90c336fec2757c8e2d4da31255ab1f6882c592",
+      "verified_signing_key_fingerprint": "f9fa0223b56b116c363737ef5da57bdd6dd785ca"
+    },
+    {
+      "component": "libnetfilter_queue",
+      "version": "1.0.5-14.fc45",
+      "source": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/x86_64/os/Packages/l/libnetfilter_queue-1.0.5-14.fc45.x86_64.rpm",
+      "sha256": "d8ffe20b2e1d5d7ce2a8182134bb3c50b9ed6789c4a5d67c18997b59d2c5043e",
+      "verified_signing_key_fingerprint": "4f50a6114cd5c6976a7f1179655a4b02f577861e"
+    },
+    {
+      "component": "Vectorscan",
+      "version": "5.4.12-2.fc45",
+      "source": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/x86_64/os/Packages/v/vectorscan-5.4.12-2.fc45.x86_64.rpm",
+      "sha256": "2596c2cf502daca0ba8527f43ceb57360ce06fd026707f87669ab815cc34d80b",
+      "verified_signing_key_fingerprint": "4f50a6114cd5c6976a7f1179655a4b02f577861e"
+    },
+    {
+      "component": "Xvfb",
+      "version": "21.1.26-1.fc45",
+      "source": "https://dl.fedoraproject.org/pub/fedora/linux/updates/45/Everything/x86_64/Packages/x/xorg-x11-server-Xvfb-21.1.26-1.fc45.x86_64.rpm",
+      "sha256": "8622edecc6ff0084e4f13e631db07cedb9ba902375e2f64f969e7244417a5a34",
+      "verified_signing_key_fingerprint": "4f50a6114cd5c6976a7f1179655a4b02f577861e"
+    }
+  ],
+  "official_archives": [
+    {
+      "component": "Prometheus and promtool",
+      "version": "3.13.5",
+      "source": "https://github.com/prometheus/prometheus/releases/download/v3.13.5/prometheus-3.13.5.linux-amd64.tar.gz",
+      "sha256": "0388822ace519c5a3a8ef556a541ce1b536e21d872f82deded465bd27a5a0699",
+      "published_metadata": "https://api.github.com/repos/prometheus/prometheus/releases/tags/v3.13.5"
+    },
+    {
+      "component": "Grafana OSS",
+      "version": "13.3.2",
+      "source": "https://dl.grafana.com/grafana/release/13.3.2/grafana_13.3.2_44555861735_linux_amd64.tar.gz",
+      "sha256": "e6f06cf4ad96a4809294c2e78d3ebe6bc42a79bff36ffe35eefbe502fc19aa87",
+      "published_metadata": "https://grafana.com/api/grafana/versions/13.3.2"
+    }
+  ],
+  "pypi_wheel_sha256": [
+    {
+      "name": "ansible_core",
+      "version": "2.22.0",
+      "file": "ansible_core-2.22.0-py3-none-any.whl",
+      "sha256": "8285d4cc81c3e3eb2d954e75531724fe0ae154d228475638123451f034a74657",
+      "metadata": "https://pypi.org/pypi/ansible_core/2.22.0/json"
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1",
+      "file": "cffi-2.1.1-cp315-cp315-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "sha256": "aeae0e330c9f6acd681f647d46cefd30c29f93e3392882e792e82080c9691399",
+      "metadata": "https://pypi.org/pypi/cffi/2.1.1/json"
+    },
+    {
+      "name": "cryptography",
+      "version": "50.0.2",
+      "file": "cryptography-50.0.2-cp315-abi3.abi3t-manylinux_2_34_x86_64.whl",
+      "sha256": "e105ab60406787da31fccc883fc0f733af1efd78f0136a4599692c4083a73d0c",
+      "metadata": "https://pypi.org/pypi/cryptography/50.0.2/json"
+    },
+    {
+      "name": "jinja2",
+      "version": "3.1.6",
+      "file": "jinja2-3.1.6-py3-none-any.whl",
+      "sha256": "85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67",
+      "metadata": "https://pypi.org/pypi/jinja2/3.1.6/json"
+    },
+    {
+      "name": "markupsafe",
+      "version": "3.0.4",
+      "file": "markupsafe-3.0.4-cp315-cp315-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "sha256": "925f929d6b59a8b3f8b8c6ac363cd0af7eecc81efb3071770b3c6717c450a369",
+      "metadata": "https://pypi.org/pypi/markupsafe/3.0.4/json"
+    },
+    {
+      "name": "packaging",
+      "version": "26.4",
+      "file": "packaging-26.4-py3-none-any.whl",
+      "sha256": "81383611a09c1bc0b08b76e0fd5829d7c6824c65b27a6aee339da133f4233ea2",
+      "metadata": "https://pypi.org/pypi/packaging/26.4/json"
+    },
+    {
+      "name": "pycparser",
+      "version": "3.12",
+      "file": "pycparser-3.12-py3-none-any.whl",
+      "sha256": "a076f3f489b39b43ed13563a1dafe42447445bec2e294154ec5c57fcdda4c85e",
+      "metadata": "https://pypi.org/pypi/pycparser/3.12/json"
+    },
+    {
+      "name": "pyyaml",
+      "version": "6.0.4",
+      "file": "pyyaml-6.0.4-cp315-cp315-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "sha256": "c57e40928738c4a202852759f9e1ee2c7063429a9469ee1ac15651bbf7d69963",
+      "metadata": "https://pypi.org/pypi/pyyaml/6.0.4/json"
+    },
+    {
+      "name": "resolvelib",
+      "version": "1.2.1",
+      "file": "resolvelib-1.2.1-py3-none-any.whl",
+      "sha256": "fb06b66c8da04172d9e72a21d7d06186d8919e32ae5ab5cdf5b9d920be805ac2",
+      "metadata": "https://pypi.org/pypi/resolvelib/1.2.1/json"
+    }
+  ]
+}

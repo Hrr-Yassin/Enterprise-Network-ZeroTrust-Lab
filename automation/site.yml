@@ -9,13 +9,18 @@
     lab_repository: "{{ playbook_dir | dirname }}"
     lab_python: "{{ ansible_playbook_python }}"
     lab_browser: false
+    lab_visible_browser_dir: ""
     lab_ids_bundle: ""
     lab_observability_bundle: ""
     lab_accelerator: auto
+    lab_acceptance_action: verify
+    lab_guest_ansible: ""
     lab_profile_args: >-
       {{ (['--browser'] if lab_browser | bool else [])
+         + (['--visible-browser-dir', lab_visible_browser_dir] if lab_visible_browser_dir else [])
          + (['--ids-bundle', lab_ids_bundle] if lab_ids_bundle else [])
-         + (['--observability-bundle', lab_observability_bundle] if lab_observability_bundle else []) }}
+         + (['--observability-bundle', lab_observability_bundle] if lab_observability_bundle else [])
+         + (['--ansible-wheelhouse', lab_guest_ansible] if lab_guest_ansible else []) }}
   tasks:
     - name: Validate inventory, addressing and communication policy
       ansible.builtin.command:
@@ -28,7 +33,7 @@
     - name: Provision the guest and execute the acceptance suite
       ansible.builtin.command:
         argv: >-
-          {{ [lab_python, lab_repository ~ '/labctl.py', 'verify',
+          {{ [lab_python, lab_repository ~ '/labctl.py', lab_acceptance_action,
               '--accelerator', lab_accelerator, '--timeout', '420'] + lab_profile_args }}
         chdir: "{{ lab_repository }}"
         expand_argument_vars: false

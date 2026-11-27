@@ -10,8 +10,8 @@ python3 labctl.py report
 
 Use `python3 labctl.py live` for the network and dashboard console. Use `python3 labctl.py verify --browser --timeout 420` to include screenshot rendering. The [operations guide](docs/operations.md) covers rollback, recovery and artifact export.
 
-The [integration guide](docs/integrations.md) documents the local release layouts for live IDS, Prometheus and Grafana checks. A local Ansible Core install or wheelhouse is required to execute the Ansible profile.
+The [operations guide](docs/operations.md#targeted-extension-verification) provides the targeted commands for Suricata, Zeek, Prometheus, Grafana, Ansible and headed Chromium. Use the [package layouts](docs/integrations.md) and [verified dependency receipt](evidence/dependency-provenance.json) to prepare the local inputs.
 
-The [evidence index](evidence/README.md) identifies the public files and the run manifest. The raw serial transcript, guest image and local run workspaces live under `.work/`. Evidence export uses fixed filenames and validates their SHA-256 digests. Fixture keys and the test CA stay in guest RAM.
+The [evidence index](evidence/README.md) identifies the public files and run manifests. Targeted integration evidence is under `evidence/add-ons`. The raw serial transcripts, packages, guest image and local run workspaces live under `.work/`. Evidence export uses fixed filenames and validates their SHA-256 digests. Fixture keys and the test CA stay in guest RAM.
 
 Publish from the local `main` branch to a repository named `Enterprise-Network-ZeroTrust-Lab` under the supplied GitHub account when publication is authorized. Review `git status --short`, `git ls-files` and the packet decode before pushing. The public portfolio should include the current [readiness assessment](docs/assessment.md) alongside the evidence.

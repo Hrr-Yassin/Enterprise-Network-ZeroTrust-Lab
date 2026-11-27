@@ -1,0 +1,14 @@
+{
+  "canary": "ids-check.lab.test",
+  "canary_recovered": true,
+  "canary_timed_out": true,
+  "capture": "edge NFQUEUE",
+  "engine": "Suricata",
+  "firewall_fingerprint_restored": true,
+  "normal_dns_passed": true,
+  "queue": 81,
+  "resolver": "10.77.40.10",
+  "signature_id": 9900102,
+  "source": "10.77.20.10",
+  "suricata_verdict": "blocked"
+}

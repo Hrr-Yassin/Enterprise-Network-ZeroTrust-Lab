@@ -1,0 +1,41 @@
+{
+  "checks": [
+    {
+      "id": "suricata_zeek_live",
+      "area": "monitoring",
+      "policy_row": null,
+      "passed": true,
+      "result": "Suricata 8.0.8 matched SID 9900101. Zeek 9.0.1 correlated the DNS and UDP connection records."
+    },
+    {
+      "id": "chromium_live_dashboards",
+      "area": "monitoring",
+      "policy_row": null,
+      "passed": true,
+      "result": "Headed Chromium rendered the live Grafana dashboard and authenticated operator dashboard on the guest display"
+    },
+    {
+      "id": "prometheus_grafana_live",
+      "area": "monitoring",
+      "policy_row": null,
+      "passed": true,
+      "result": "Prometheus scraped the mTLS endpoint and Grafana served live data for every provisioned panel"
+    },
+    {
+      "id": "suricata_inline_prevention",
+      "area": "monitoring",
+      "policy_row": null,
+      "passed": true,
+      "result": "Suricata allowed ordinary DNS and blocked the synthetic canary inline. Removed the queue and verified recovery."
+    },
+    {
+      "id": "ansible_guest_execution",
+      "area": "automation",
+      "policy_row": null,
+      "passed": true,
+      "result": "Ansible Core 2.22.0 checked and recorded the live guest policy and repeated with zero changes"
+    }
+  ],
+  "tested_permits": 0,
+  "tested_denials": 0
+}

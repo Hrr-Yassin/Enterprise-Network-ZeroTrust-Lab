@@ -15,7 +15,8 @@ PYTHON = "/usr/bin/python3"
 def guard():
     command_line = Path("/proc/cmdline").read_text().split()
     if not (os.geteuid() == 0 and (RUN / "guest").is_file() and
-            set(command_line) & {"ztlab.mode=network", "ztlab.mode=verify", "ztlab.mode=live"}):
+            set(command_line) & {"ztlab.mode=network", "ztlab.mode=verify", "ztlab.mode=verify-addons",
+                                 "ztlab.mode=identity", "ztlab.mode=live"}):
         raise RuntimeError("The deployment and acceptance suite require the booted, NIC-free lab guest")
 
 

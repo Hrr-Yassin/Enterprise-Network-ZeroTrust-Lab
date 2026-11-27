@@ -1,0 +1,25 @@
+{
+  "controller_ansible_core": "2.22.0",
+  "inventory": "localhost only",
+  "check_mode": {
+    "ok": 1,
+    "changed": 0,
+    "unreachable": 0,
+    "failed": 0,
+    "skipped": 5,
+    "rescued": 0,
+    "ignored": 0
+  },
+  "apply_mode": {
+    "ok": 6,
+    "changed": 1,
+    "unreachable": 0,
+    "failed": 0,
+    "skipped": 0,
+    "rescued": 0,
+    "ignored": 0
+  },
+  "guest_run": "20261127T102856682265Z",
+  "guest_evidence_sha256": "55e155f2f72b04950ce79668f99cf3d7c8c92300c6352a5ea91fa439e75c2d4d",
+  "elapsed_guest_seconds": 97.63
+}

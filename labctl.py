@@ -22,19 +22,25 @@ WORK = ROOT / ".work"
 FILES = {
     "network.json", "checks.json", "telemetry.json", "firewall-events.log", "identity-events.jsonl",
     "synthetic-dns.pcap", "packet-summary.txt", "dashboard.html", "dashboard.png", "firewall-backup.nft", "vpn-events.jsonl",
-    "ids-observations.json", "observability.json",
+    "ids-observations.json", "ips-observations.json", "observability.json",
+    "grafana.png", "dashboard-visible.png", "browser-observations.json", "ansible-observations.json",
+    "identity-boot.json",
 }
 RECORD = re.compile(r"ZTLAB FILE ([a-z0-9.-]+) ([A-Za-z0-9+/=]+)\Z")
 RUN_ID = re.compile(r"\d{8}T\d{12}Z\Z")
 PROFILE_CHECKS = {
     "browser": ("chromium_dashboard_render", "dashboard.png"),
     "ids": ("suricata_zeek_live", "ids-observations.json"),
+    "inline_ips": ("suricata_inline_prevention", "ips-observations.json"),
     "observability": ("prometheus_grafana_live", "observability.json"),
+    "visible_browser": ("chromium_live_dashboards", "grafana.png", "dashboard-visible.png", "browser-observations.json"),
+    "ansible": ("ansible_guest_execution", "ansible-observations.json"),
 }
+EXTENSIONS = ("ids", "observability", "visible_browser", "ansible")
 
 
 def extension_arguments(args):
-    return {name: getattr(args, name + "_bundle") for name in ("ids", "observability")
+    return {name: getattr(args, name + "_bundle") for name in EXTENSIONS
             if getattr(args, name + "_bundle") is not None}
 
 
@@ -45,13 +51,20 @@ def guest_command(args, image, mode):
     extensions = extension_arguments(args)
     enabled = len(extensions) + int(args.browser)
     memory = 1024 + 512 * enabled if enabled else 640
+    if args.observability_bundle:
+        memory = max(memory, 4096 if args.visible_browser_bundle else 3072)
+    boot = f"console=ttyS0,115200 quiet loglevel=3 rdinit=/init panic=1 ztlab.mode={mode}"
+    if args.observability_bundle:
+        # The large signed release tree needs more than rootfs tmpfs's default size limit.
+        boot += " rootfstype=ramfs"
     command = [
         build.executable("qemu-system-x86_64"), "-no-user-config", "-machine", f"pc,accel={accelerator}",
         "-smp", "2", "-m", f"{memory}M", "-display", "none", "-nodefaults", "-nic", "none",
         "-serial", "stdio", "-monitor", "none", "-no-reboot",
-        "-kernel", args.kernel, "-initrd", image, "-append",
-        f"console=ttyS0,115200 quiet loglevel=3 rdinit=/init panic=1 ztlab.mode={mode}",
+        "-kernel", args.kernel, "-initrd", image, "-append", boot,
     ]
+    if args.ids_bundle:
+        command.extend(("-cpu", "host" if accelerator == "kvm" else "max"))
     return command, accelerator, memory
 
 
@@ -79,9 +92,9 @@ def acceptance_issues(manifest, report):
     if not checks or any(item["passed"] is not True for item in checks):
         issues.append("Acceptance checks were empty or failed")
     passed = {item["id"] for item in checks if item["passed"] is True}
-    for profile, (check, artifact) in PROFILE_CHECKS.items():
+    for profile, (check, *artifacts) in PROFILE_CHECKS.items():
         if profile in manifest.get("profiles", []) and (
-            check not in passed or artifact not in manifest["artifact_sha256"]
+            check not in passed or any(artifact not in manifest["artifact_sha256"] for artifact in artifacts)
         ):
             issues.append(f"Requested {profile} profile lacks a passing check or its evidence artifact")
     return issues
@@ -129,7 +142,8 @@ def record_run(args, image, mode):
         "peak_host_qemu_rss_kib": peak or None, "initramfs_bytes": image.stat().st_size,
         "initramfs_sha256": image_hash,
         "kernel_release": args.kernel.name.removeprefix("vmlinuz-"), "host_network_attachment": False,
-        "profiles": ["base", *(["browser"] if args.browser else []), *extension_arguments(args)],
+        "profiles": ["base", *(["browser"] if args.browser else []), *extension_arguments(args),
+                     *(["inline_ips"] if args.ids_bundle and mode in {"verify", "verify-addons"} else [])],
         "policy_sha256": hashlib.sha256((ROOT / "config/lab.json").read_bytes()).hexdigest(),
         "artifact_sha256": files, "qemu_exit": status, "timed_out": timed_out,
     }
@@ -138,9 +152,10 @@ def record_run(args, image, mode):
         if line.startswith("ZTLAB ") and not line.startswith("ZTLAB FILE "):
             print(line)
     print(f"Run artifacts: {output.relative_to(ROOT)}")
-    if status or timed_out or (mode == "network" and "network.json" not in files):
+    specific_evidence = {"network": "network.json", "identity": "identity-boot.json"}
+    if status or timed_out or (mode in specific_evidence and specific_evidence[mode] not in files):
         return 1
-    if mode == "verify":
+    if mode in {"verify", "verify-addons"}:
         if "checks.json" not in files:
             return 1
         report = json.loads((output / "checks.json").read_text(encoding="utf-8"))
@@ -168,11 +183,14 @@ def report_run(run_id, export):
     run_report = json.loads(checks)
     issues = acceptance_issues(manifest, run_report)
     passed = sum(item["passed"] for item in run_report["checks"])
+    coverage = (f"The suite tested {run_report['tested_permits']} allowed protocol paths and "
+                f"{run_report['tested_denials']} denied paths against the communication matrix.")
+    if manifest["mode"] == "verify-addons":
+        coverage = "Targeted integration evidence for the selected lab extensions."
     summary = [
         "# Acceptance results", "",
         f"Run {manifest['run']} passed {passed} of {len(run_report['checks'])} checks.",
-        f"The suite tested {run_report['tested_permits']} allowed protocol paths and "
-        f"{run_report['tested_denials']} denied paths against the communication matrix.", "",
+        coverage, "",
         "| Check | Result | Observation |", "| --- | --- | --- |",
     ]
     for item in run_report["checks"]:
@@ -185,6 +203,8 @@ def report_run(run_id, export):
         if issues:
             raise RuntimeError("Evidence export requires a passed run. " + ". ".join(issues))
         target = ROOT / "evidence"
+        if manifest["mode"] == "verify-addons":
+            target /= "add-ons"
         target.mkdir(exist_ok=True)
         artifacts = manifest["artifact_sha256"]
         for name, digest in artifacts.items():
@@ -204,7 +224,7 @@ def report_run(run_id, export):
         (target / "results.md").write_text(rendered, encoding="utf-8")
         for path in stale:
             path.unlink()
-        print(f"Exported allowlisted artifacts for {manifest['run']} to evidence/")
+        print(f"Exported allowlisted artifacts for {manifest['run']} to {target.relative_to(ROOT)}/")
     else:
         print(rendered, end="")
     return int(bool(issues))
@@ -212,13 +232,17 @@ def report_run(run_id, export):
 
 def arguments():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("plan", "build", "network", "verify", "live", "report"))
+    parser.add_argument("action", choices=("plan", "build", "network", "identity", "verify", "verify-addons", "live", "report"))
     parser.add_argument("--kernel", type=Path, default=Path(f"/boot/vmlinuz-{platform.release()}"))
     parser.add_argument("--accelerator", choices=("auto", "kvm", "tcg"), default="auto")
     parser.add_argument("--browser", action="store_true", help="Pack local Chromium Headless Shell for screenshot evidence")
     parser.add_argument("--chromium", type=Path, help="Select an existing chrome-headless-shell executable")
     parser.add_argument("--ids-bundle", type=Path, help="Stage a local Suricata and Zeek release tree")
     parser.add_argument("--observability-bundle", type=Path, help="Stage local Prometheus and Grafana release trees")
+    parser.add_argument("--visible-browser-dir", type=Path, dest="visible_browser_bundle",
+                        help="Stage signed Xvfb runtime files and the cached full Chromium browser")
+    parser.add_argument("--ansible-wheelhouse", type=Path, dest="ansible_bundle",
+                        help="Stage the local Ansible dependency wheelhouse for guest execution")
     parser.add_argument("--timeout", type=int, default=260, help="Guest verification deadline in seconds")
     parser.add_argument("--reuse-image", action="store_true", help="Use the previously built image for this profile")
     parser.add_argument("--run-id", help="Select the source run for report")
@@ -235,6 +259,10 @@ def main():
     extensions = extension_arguments(args)
     if args.reuse_image and extensions:
         raise RuntimeError("Build a fresh guest when supplying an offline engine bundle")
+    if args.visible_browser_bundle and not args.observability_bundle:
+        raise RuntimeError("Visible Chromium requires the live Grafana observability bundle")
+    if args.action == "verify-addons" and (not extensions or args.browser):
+        raise RuntimeError("Select at least one extension for verify-addons. Use --visible-browser-dir for Grafana rendering")
     policy = load()
     if args.action == "plan":
         if (ROOT / "docs/communication-matrix.md").exists() and (
@@ -243,16 +271,11 @@ def main():
             raise RuntimeError("The committed communication matrix differs from the policy model")
         if (ROOT / "config/edge.nft").exists() and (ROOT / "config/edge.nft").read_text(encoding="utf-8") != firewall(policy):
             raise RuntimeError("The committed edge rules differ from the policy model")
-        if args.ids_bundle:
-            from lab.ids import validate_bundle
+        from importlib import import_module
 
-            validate_bundle(args.ids_bundle)
-            print("Validated local Suricata and Zeek bundle layout")
-        if args.observability_bundle:
-            from lab.observability import validate_bundle
-
-            validate_bundle(args.observability_bundle)
-            print("Validated local Prometheus and Grafana bundle layout")
+        for profile, bundle in extensions.items():
+            import_module("lab." + profile).validate_bundle(bundle)
+            print(f"Validated local {profile} bundle layout")
         print(f"Validated {len(policy['segments'])} segments, {len(policy['permits'])} permits "
               f"and {len(policy['denials'])} denial cases")
         print(firewall(policy), end="")
@@ -261,7 +284,7 @@ def main():
     image = image_dir / "lab.cpio.gz"
     if not args.reuse_image:
         browser = build.browser_source(args.chromium) if args.browser else None
-        image = build.build(image_dir, args.kernel, browser, args.ids_bundle, args.observability_bundle)
+        image = build.build(image_dir, args.kernel, browser, **{name + "_bundle": path for name, path in extensions.items()})
     elif not image.is_file():
         raise RuntimeError("No previously built image for this profile")
     if args.action == "build":

@@ -1,0 +1,270 @@
+{
+  "compliant": true,
+  "firewall": {
+    "allowed_new_packets": 18,
+    "counters": {
+      "admin_dashboard": 0,
+      "admin_dns": 0,
+      "admin_ops": 2,
+      "admin_vault": 2,
+      "deny_forward": 1,
+      "deny_input": 0,
+      "deny_output": 0,
+      "dmz_dns": 0,
+      "drop_invalid": 0,
+      "drop_spoof": 0,
+      "employee_app": 0,
+      "employee_dns": 4,
+      "employee_egress": 0,
+      "established": 202,
+      "guest_dns": 0,
+      "guest_egress": 2,
+      "ops_admin": 1,
+      "ops_dashboard": 0,
+      "ops_dns": 0,
+      "ops_vault": 0,
+      "sensor_app_health": 2,
+      "user_app": 1,
+      "user_dns": 0,
+      "wan_vpn_ops": 1,
+      "wan_vpn_user": 1,
+      "wan_web": 2,
+      "wireguard_reply": 0
+    },
+    "dropped_packets": 1,
+    "stateful_reply_packets": 202
+  },
+  "firewall_events": [
+    "ALLOW sensor_app_health UPTIME=22.409602 IN=e-sensor OUT=e-app SRC=10.77.60.10 DST=10.77.30.10 PROTO=TCP SPT=54660 DPT=8443",
+    "ALLOW admin_ops UPTIME=22.419037 IN=e-admin OUT=e-app SRC=10.77.50.10 DST=10.77.30.10 PROTO=TCP SPT=57500 DPT=9443",
+    "ALLOW admin_vault UPTIME=22.426589 IN=e-admin OUT=e-vault SRC=10.77.50.10 DST=10.77.30.130 PROTO=TCP SPT=35798 DPT=8443",
+    "ALLOW wan_web UPTIME=22.434841 IN=e-wan OUT=e-dmz SRC=192.0.2.20 DST=10.77.10.10 PROTO=TCP SPT=33342 DPT=443",
+    "ALLOW employee_dns UPTIME=22.440579 IN=e-staff OUT=e-id SRC=10.77.20.10 DST=10.77.40.10 PROTO=UDP SPT=50554 DPT=53",
+    "ALLOW guest_egress UPTIME=22.441340 IN=e-guest OUT=e-wan SRC=10.77.70.10 DST=192.0.2.80 PROTO=TCP SPT=35304 DPT=8080",
+    "ALLOW employee_dns UPTIME=33.204882 IN=e-staff OUT=e-id SRC=10.77.20.10 DST=10.77.40.10 PROTO=UDP SPT=56510 DPT=53",
+    "ALLOW employee_dns UPTIME=39.756837 IN=e-staff OUT=e-id SRC=10.77.20.10 DST=10.77.40.10 PROTO=UDP SPT=50105 DPT=53",
+    "ALLOW wan_vpn_user UPTIME=39.759011 IN=e-wan OUT= SRC=192.0.2.30 DST=192.0.2.1 PROTO=UDP SPT=48034 DPT=51820",
+    "ALLOW user_app UPTIME=39.759522 IN=wg0 OUT=e-app SRC=10.77.90.10 DST=10.77.30.10 PROTO=TCP SPT=38548 DPT=8443",
+    "ALLOW wan_vpn_ops UPTIME=39.767825 IN=e-wan OUT= SRC=192.0.2.31 DST=192.0.2.1 PROTO=UDP SPT=49357 DPT=51820",
+    "ALLOW ops_admin UPTIME=39.768516 IN=wg0 OUT=e-app SRC=10.77.90.11 DST=10.77.30.10 PROTO=TCP SPT=44616 DPT=9443",
+    "DROP deny_forward UPTIME=39.783052 IN=e-guest OUT=e-app SRC=10.77.70.10 DST=10.77.30.10 PROTO=TCP SPT=43588 DPT=8443",
+    "ALLOW sensor_app_health UPTIME=40.541281 IN=e-sensor OUT=e-app SRC=10.77.60.10 DST=10.77.30.10 PROTO=TCP SPT=47648 DPT=8443",
+    "ALLOW admin_ops UPTIME=40.548194 IN=e-admin OUT=e-app SRC=10.77.50.10 DST=10.77.30.10 PROTO=TCP SPT=36512 DPT=9443",
+    "ALLOW admin_vault UPTIME=40.555457 IN=e-admin OUT=e-vault SRC=10.77.50.10 DST=10.77.30.130 PROTO=TCP SPT=58770 DPT=8443",
+    "ALLOW wan_web UPTIME=40.562488 IN=e-wan OUT=e-dmz SRC=192.0.2.20 DST=10.77.10.10 PROTO=TCP SPT=37256 DPT=443",
+    "ALLOW employee_dns UPTIME=40.568162 IN=e-staff OUT=e-id SRC=10.77.20.10 DST=10.77.40.10 PROTO=UDP SPT=44665 DPT=53",
+    "ALLOW guest_egress UPTIME=40.568979 IN=e-guest OUT=e-wan SRC=10.77.70.10 DST=192.0.2.80 PROTO=TCP SPT=33684 DPT=8080"
+  ],
+  "health": {
+    "Admin service": {
+      "latency_ms": 7.1,
+      "up": true
+    },
+    "Application": {
+      "latency_ms": 7.0,
+      "up": true
+    },
+    "Guest egress": {
+      "latency_ms": 2.3,
+      "up": true
+    },
+    "Lab DNS": {
+      "latency_ms": 0.9,
+      "up": true
+    },
+    "Public DMZ": {
+      "latency_ms": 5.7,
+      "up": true
+    },
+    "Restricted tier": {
+      "latency_ms": 7.1,
+      "up": true
+    }
+  },
+  "ids": {
+    "suricata_alerts": 1,
+    "zeek_connections": 1,
+    "zeek_dns": 1
+  },
+  "infrastructure": {
+    "load_one_minute": 0.56,
+    "memory_available_mib": 1656,
+    "memory_total_mib": 3899,
+    "uptime_seconds": 40.6
+  },
+  "sampled_at": "2026-11-27T10:29:36+00:00",
+  "segments": [
+    {
+      "id": "wan",
+      "name": "Simulated external network",
+      "network": "192.0.2.0/24",
+      "rx_bytes": 13330,
+      "tx_bytes": 17698,
+      "up": true
+    },
+    {
+      "id": "dmz",
+      "name": "Public services DMZ",
+      "network": "10.77.10.0/24",
+      "rx_bytes": 6676,
+      "tx_bytes": 4432,
+      "up": true
+    },
+    {
+      "id": "staff",
+      "name": "Employee network",
+      "network": "10.77.20.0/24",
+      "rx_bytes": 384,
+      "tx_bytes": 448,
+      "up": true
+    },
+    {
+      "id": "app",
+      "name": "Server network, application tier",
+      "network": "10.77.30.0/25",
+      "rx_bytes": 25278,
+      "tx_bytes": 16417,
+      "up": true
+    },
+    {
+      "id": "vault",
+      "name": "Server network, restricted data tier",
+      "network": "10.77.30.128/25",
+      "rx_bytes": 8479,
+      "tx_bytes": 5539,
+      "up": true
+    },
+    {
+      "id": "identity",
+      "name": "Identity services network",
+      "network": "10.77.40.0/24",
+      "rx_bytes": 448,
+      "tx_bytes": 384,
+      "up": true
+    },
+    {
+      "id": "admin",
+      "name": "Administration network",
+      "network": "10.77.50.0/24",
+      "rx_bytes": 10987,
+      "tx_bytes": 16867,
+      "up": true
+    },
+    {
+      "id": "sensor",
+      "name": "Security monitoring network",
+      "network": "10.77.60.0/24",
+      "rx_bytes": 5529,
+      "tx_bytes": 8472,
+      "up": true
+    },
+    {
+      "id": "guest",
+      "name": "Guest network",
+      "network": "10.77.70.0/24",
+      "rx_bytes": 1088,
+      "tx_bytes": 1584,
+      "up": true
+    },
+    {
+      "id": "vpn",
+      "name": "WireGuard remote access",
+      "network": "10.77.90.0/24",
+      "rx_bytes": 6336,
+      "tx_bytes": 9168,
+      "up": true
+    }
+  ],
+  "sensor": {
+    "alert_count": 2,
+    "alerts": [
+      {
+        "destination": "10.77.40.10",
+        "signature": "LAB-DNS-CANARY",
+        "source": "10.77.20.10",
+        "time": "2026-11-27T10:29:29+00:00"
+      },
+      {
+        "destination": "10.77.40.10",
+        "signature": "LAB-DNS-CANARY",
+        "source": "10.77.20.10",
+        "time": "2026-11-27T10:29:35+00:00"
+      }
+    ],
+    "bytes": 49757,
+    "dns_queries": 3,
+    "dns_sample": [
+      {
+        "destination": "10.77.40.10",
+        "name": "app.lab.test",
+        "source": "10.77.20.10"
+      },
+      {
+        "destination": "10.77.40.10",
+        "name": "ids-check.lab.test",
+        "source": "10.77.20.10"
+      },
+      {
+        "destination": "10.77.40.10",
+        "name": "ids-check.lab.test",
+        "source": "10.77.20.10"
+      }
+    ],
+    "packets": 151,
+    "tcp_flows": 6,
+    "tcp_sample": [
+      {
+        "destination": "10.77.30.10",
+        "destination_port": 8443,
+        "source": "10.77.60.10",
+        "source_port": 54660
+      },
+      {
+        "destination": "10.77.30.10",
+        "destination_port": 9443,
+        "source": "10.77.50.10",
+        "source_port": 57500
+      },
+      {
+        "destination": "10.77.30.130",
+        "destination_port": 8443,
+        "source": "10.77.50.10",
+        "source_port": 35798
+      },
+      {
+        "destination": "192.0.2.1",
+        "destination_port": 443,
+        "source": "192.0.2.20",
+        "source_port": 33342
+      },
+      {
+        "destination": "192.0.2.80",
+        "destination_port": 8080,
+        "source": "10.77.70.10",
+        "source_port": 35304
+      },
+      {
+        "destination": "10.77.30.10",
+        "destination_port": 8443,
+        "source": "10.77.70.10",
+        "source_port": 43588
+      }
+    ]
+  },
+  "vpn": {
+    "ops_vpn": {
+      "authorized": true,
+      "handshake_recent": true,
+      "last_handshake_utc_epoch": 1795775375,
+      "rx_bytes": 3168,
+      "tx_bytes": 4568
+    },
+    "user_vpn": {
+      "authorized": true,
+      "handshake_recent": true,
+      "last_handshake_utc_epoch": 1795775375,
+      "rx_bytes": 3168,
+      "tx_bytes": 4600
+    }
+  }
+}

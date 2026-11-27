@@ -32,7 +32,7 @@ def playbook_binary(work, wheels):
         return executable
     environment = work / "venv"
     venv.EnvBuilder(with_pip=True).create(environment)
-    pip = [environment / "bin/python", "-m", "pip", "--isolated", "--disable-pip-version-check"]
+    pip = [environment / "bin/python", "-m", "pip", "--isolated", "--disable-pip-version-check", "--no-cache-dir"]
     pip_env = {**os.environ, "PIP_CONFIG_FILE": os.devnull}
     # Install explicit wheel paths only. Pip does not resolve requirements or use package indexes.
     subprocess.run([*pip, "install", "--no-index", "--no-deps", "--only-binary=:all:", *wheels], check=True, env=pip_env)
@@ -44,11 +44,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--wheelhouse", type=Path, help="Directory with a compatible ansible-core dependency closure")
     parser.add_argument("--check", action="store_true", help="Validate the policy and bundle layouts only")
+    parser.add_argument("--addons-only", action="store_true", help="Verify only the selected optional profiles")
+    parser.add_argument("--guest-ansible", action="store_true", help="Install the wheelhouse and exercise Ansible inside the guest")
     parser.add_argument("--browser", action="store_true")
+    parser.add_argument("--visible-browser-dir", type=Path)
     parser.add_argument("--ids-bundle", type=Path)
     parser.add_argument("--observability-bundle", type=Path)
     parser.add_argument("--accelerator", choices=("auto", "kvm", "tcg"), default="auto")
     args = parser.parse_args()
+    if args.guest_ansible and args.wheelhouse is None:
+        parser.error("--guest-ansible requires --wheelhouse")
     wheels = wheel_paths(args.wheelhouse) if args.wheelhouse else None
     work = ROOT / ".work" / "ansible"
     work.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -60,6 +65,9 @@ def main():
             path.mkdir(mode=0o700)
         variables = {
             "lab_browser": args.browser, "lab_accelerator": args.accelerator,
+            "lab_acceptance_action": "verify-addons" if args.addons_only else "verify",
+            "lab_guest_ansible": str(args.wheelhouse.resolve()) if args.guest_ansible else "",
+            "lab_visible_browser_dir": str(args.visible_browser_dir.resolve()) if args.visible_browser_dir else "",
             "lab_ids_bundle": str(args.ids_bundle.resolve()) if args.ids_bundle else "",
             "lab_observability_bundle": str(args.observability_bundle.resolve()) if args.observability_bundle else "",
         }

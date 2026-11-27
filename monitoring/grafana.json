@@ -165,7 +165,7 @@
     },
     {
       "id": 8,
-      "title": "Sensor alerts",
+      "title": "IDS alerts and Zeek telemetry",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -181,7 +181,22 @@
         {
           "refId": "A",
           "expr": "ztlab_sensor_alerts_total",
-          "legendFormat": "Alerts"
+          "legendFormat": "Lab sensor alerts"
+        },
+        {
+          "refId": "B",
+          "expr": "ztlab_ids_suricata_alerts",
+          "legendFormat": "Suricata alerts"
+        },
+        {
+          "refId": "C",
+          "expr": "ztlab_ids_zeek_dns",
+          "legendFormat": "Zeek DNS records"
+        },
+        {
+          "refId": "D",
+          "expr": "ztlab_ids_zeek_connections",
+          "legendFormat": "Zeek connections"
         }
       ]
     },
@@ -226,6 +241,28 @@
           "refId": "A",
           "expr": "rate(ztlab_dns_queries_total[2m])",
           "legendFormat": "DNS queries/s"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Guest available memory",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ztlab-prom"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 30,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ztlab_guest_available_memory_mib",
+          "legendFormat": "Available MiB"
         }
       ]
     }

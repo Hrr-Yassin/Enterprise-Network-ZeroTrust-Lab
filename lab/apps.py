@@ -182,6 +182,8 @@ def metrics(data):
         ("ztlab_firewall_new_allowed_packets_total", None, data["firewall"]["allowed_new_packets"]),
         ("ztlab_firewall_dropped_packets_total", None, data["firewall"]["dropped_packets"]),
         ("ztlab_policy_compliant", None, int(data["compliant"])),
+        ("ztlab_guest_available_memory_mib", None, data["infrastructure"]["memory_available_mib"]),
+        *(("ztlab_ids_" + name, None, value) for name, value in data.get("ids", {}).items()),
     ]
     for name, peer in data["vpn"].items():
         rows.append(("ztlab_vpn_peer_recent_handshake", f'peer="{name}"', int(peer["handshake_recent"])))

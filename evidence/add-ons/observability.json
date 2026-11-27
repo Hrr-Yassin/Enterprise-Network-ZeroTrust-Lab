@@ -1,0 +1,48 @@
+{
+  "grafana": {
+    "dashboard_uid": "ztlab-observability",
+    "datasource_uid": "ztlab-prom",
+    "live_panel_queries": {
+      "Availability": 1,
+      "DNS requests": 1,
+      "Firewall drops": 1,
+      "Guest available memory": 1,
+      "IDS alerts and Zeek telemetry": 4,
+      "Mirrored network traffic": 1,
+      "New firewall permits": 1,
+      "Policy compliance": 1,
+      "Probe latency": 1,
+      "Segment links": 1,
+      "WireGuard handshakes": 1
+    },
+    "panel_count": 11,
+    "proxied_compliance_sample": 1,
+    "unauthenticated_dashboard_rejected": true,
+    "version": "13.3.2"
+  },
+  "listeners": "monitor namespace IPv4 loopback",
+  "prometheus": {
+    "canary_alert_fired": true,
+    "compliance_sample": 1,
+    "evaluated_alert_rules": [
+      "LabFirewallPolicyDrift",
+      "LabIDSCanarySeen",
+      "LabServiceUnavailable"
+    ],
+    "mtls_target_health": "up",
+    "observed_canary_metrics": {
+      "ztlab_ids_suricata_alerts": 1.0,
+      "ztlab_ids_zeek_connections": 1.0,
+      "ztlab_ids_zeek_dns": 1.0,
+      "ztlab_sensor_alerts_total": 2.0
+    },
+    "scrape_job": "isolated-ztlab",
+    "version": "3.13.5"
+  },
+  "release_sha256": {
+    "grafana/bin/grafana": "1e85d8a369efdfccba93c6edc4ac82124b8de9b17303ff2db26a14f94c32f7ed",
+    "grafana/data/plugins-bundled/prometheus/gpx_grafana-prometheus-datasource_linux_amd64": "52f52b3621b4153f44a3d1c9e4ff2c86112c143b01b8d88b8a6c339a8068f835",
+    "prometheus/prometheus": "b20def7421c2037f18139a3695f0905884098add886cb7f26f1c655f5de4611a",
+    "prometheus/promtool": "4e84296dc89ef03d856674d76d387f5ccc54a698136c2f0dc30ceef2286908ff"
+  }
+}

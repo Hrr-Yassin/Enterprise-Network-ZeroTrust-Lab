@@ -1,0 +1,32 @@
+{
+  "observed_at_utc": "2026-11-27T10:25:11+00:00",
+  "comparison_snapshot_utc": "2026-11-27T10:15:38+00:00",
+  "matching_inventory_fields": [
+    "ipv4_default_routes",
+    "selinux"
+  ],
+  "changed_inventory_fields": [
+    "ipv4_main_routes",
+    "ipv6_main_routes",
+    "libvirt_active_networks",
+    "libvirt_domains",
+    "libvirt_networks",
+    "libvirt_running_domains",
+    "link_states"
+  ],
+  "inventory": {
+    "selinux": "Enforcing",
+    "link_states": {
+      "DOWN": 5,
+      "UNKNOWN": 5,
+      "UP": 4
+    },
+    "ipv4_main_routes": 9,
+    "ipv6_main_routes": 5,
+    "ipv4_default_routes": 1,
+    "libvirt_domains": 7,
+    "libvirt_running_domains": 4,
+    "libvirt_networks": 8,
+    "libvirt_active_networks": 7
+  }
+}

@@ -1,0 +1,14 @@
+{"event": "identity_allowed", "resource": "health", "role": "observer", "service": "app", "source": "10.77.60.10", "time": "2026-11-27T10:29:18+00:00"}
+{"event": "identity_allowed", "resource": "index", "role": "remote_user", "service": "app", "source": "10.77.90.10", "time": "2026-11-27T10:29:35+00:00"}
+{"event": "identity_allowed", "resource": "health", "role": "observer", "service": "app", "source": "10.77.60.10", "time": "2026-11-27T10:29:36+00:00"}
+{"event": "identity_allowed", "resource": "health", "role": "operator", "service": "ops", "source": "10.77.50.10", "time": "2026-11-27T10:29:18+00:00"}
+{"event": "identity_allowed", "resource": "index", "role": "operator", "service": "ops", "source": "10.77.90.11", "time": "2026-11-27T10:29:35+00:00"}
+{"event": "identity_allowed", "resource": "health", "role": "operator", "service": "ops", "source": "10.77.50.10", "time": "2026-11-27T10:29:36+00:00"}
+{"event": "identity_allowed", "resource": "health", "role": "operator", "service": "vault", "source": "10.77.50.10", "time": "2026-11-27T10:29:18+00:00"}
+{"event": "identity_allowed", "resource": "health", "role": "operator", "service": "vault", "source": "10.77.50.10", "time": "2026-11-27T10:29:36+00:00"}
+{"event": "identity_allowed", "resource": "metrics", "role": "observer", "service": "dashboard", "source": "10.77.60.10", "time": "2026-11-27T10:29:28+00:00"}
+{"event": "identity_allowed", "resource": "metrics", "role": "observer", "service": "dashboard", "source": "10.77.60.10", "time": "2026-11-27T10:29:33+00:00"}
+{"event": "identity_allowed", "resource": "metrics", "role": "observer", "service": "dashboard", "source": "10.77.60.10", "time": "2026-11-27T10:29:38+00:00"}
+{"event": "identity_allowed", "resource": "metrics", "role": "observer", "service": "dashboard", "source": "10.77.60.10", "time": "2026-11-27T10:29:43+00:00"}
+{"event": "identity_allowed", "resource": "index", "role": "operator", "service": "dashboard", "source": "10.77.50.10", "time": "2026-11-27T10:29:43+00:00"}
+{"event": "identity_allowed", "resource": "metrics", "role": "observer", "service": "dashboard", "source": "10.77.60.10", "time": "2026-11-27T10:29:48+00:00"}

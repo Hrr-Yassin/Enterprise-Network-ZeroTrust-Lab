@@ -73,12 +73,12 @@ def python_runtime(root):
     compileall.compile_dir(root / stdlib.relative_to("/"), quiet=1, stripdir=root, prependdir="/")
 
 
-def kernel_modules(root, version):
+def kernel_modules(root, version, extensions=()):
     source = Path("/usr/lib/modules") / version
     destination = root / "lib/modules" / version
     destination.mkdir(parents=True)
     requested = set()
-    for name in MODULES:
+    for name in (*MODULES, *extensions):
         installed = run("modinfo", "--set-version", version, "--filename", name).strip()
         if installed.startswith("/"):
             requested.add(Path(installed))
@@ -120,6 +120,10 @@ def browser_runtime(root, source):
         shutil.copytree(browser_dir / "locales", root / "opt/browser/locales",
                         ignore=lambda _path, names: [name for name in names if not name.startswith("en-US")])
     libraries(source, root)
+    browser_system_assets(root)
+
+
+def browser_system_assets(root):
     for name in ("libnssckbi.so", "libfreeblpriv3.so", "libsoftokn3.so", "libnsssysinit.so"):
         lib = Path("/usr/lib64") / name
         if lib.is_file():
@@ -129,7 +133,7 @@ def browser_runtime(root, source):
         fonts = list(Path("/usr/share/fonts").glob("**/LiberationSans-Regular.ttf"))
     if fonts:
         copy(fonts[0], root, "/usr/share/fonts/lab-sans.ttf")
-    (root / "etc/fonts").mkdir(parents=True)
+    (root / "etc/fonts").mkdir(parents=True, exist_ok=True)
     (root / "etc/fonts/fonts.conf").write_text(
         '<?xml version="1.0"?>\n<fontconfig><dir>/usr/share/fonts</dir>'
         '<cachedir>/tmp/fontconfig</cachedir></fontconfig>\n', encoding="utf-8"
@@ -140,7 +144,8 @@ def guest_files(root):
     for name in ("dev", "proc", "sys", "run", "tmp", "sbin", "etc/ssl", "var", "ztlab/lab", "ztlab/config", "ztlab/monitoring"):
         (root / name).mkdir(parents=True, exist_ok=True)
     (root / "var/run").symlink_to("/run")
-    for tool in ("sh", "mount", "mkdir", "poweroff", "sleep", "dmesg", "cat", "setsid", "cttyhack", "sysctl", "umount"):
+    for tool in ("sh", "mount", "mkdir", "poweroff", "sleep", "dmesg", "cat", "setsid", "cttyhack", "sysctl",
+                 "umount", "chmod", "rm", "id"):
         (root / "bin" / tool).symlink_to("busybox")
     (root / "sbin/modprobe").symlink_to("/bin/modprobe")
     (root / "etc/resolv.conf").write_text("", encoding="utf-8")
@@ -174,7 +179,8 @@ def pack(root, target):
                 raise RuntimeError("Could not package the guest initramfs")
 
 
-def build(output, kernel, browser=None, ids_bundle=None, observability_bundle=None):
+def build(output, kernel, browser=None, ids_bundle=None, observability_bundle=None, visible_browser_bundle=None,
+          ansible_bundle=None):
     if not kernel.is_file() or not kernel.name.startswith("vmlinuz-"):
         raise RuntimeError("Specify a readable local Fedora /boot/vmlinuz-<release> with matching installed modules")
     version = kernel.name.removeprefix("vmlinuz-")
@@ -185,7 +191,7 @@ def build(output, kernel, browser=None, ids_bundle=None, observability_bundle=No
         for tool in TOOLS:
             install_executable(tool, staging)
         python_runtime(staging)
-        kernel_modules(staging, version)
+        kernel_modules(staging, version, ("nfnetlink_queue", "nft_queue") if ids_bundle else ())
         guest_files(staging)
         if browser is not None:
             browser_runtime(staging, browser)
@@ -197,6 +203,14 @@ def build(output, kernel, browser=None, ids_bundle=None, observability_bundle=No
             from lab.observability import stage_bundle
 
             stage_bundle(staging, observability_bundle)
+        if visible_browser_bundle is not None:
+            from lab.visible_browser import stage_bundle
+
+            stage_bundle(staging, visible_browser_bundle)
+        if ansible_bundle is not None:
+            from lab.ansible import stage_bundle
+
+            stage_bundle(staging, ansible_bundle)
         archive = Path(directory) / "lab.cpio.gz"
         pack(staging, archive)
         destination = output / "lab.cpio.gz"

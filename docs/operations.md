@@ -13,7 +13,7 @@ python3 labctl.py report
 
 The commands run as the current user. `plan` checks addressing, policy and any supplied bundle layouts. `network` boots the isolated topology, verifies interface state and exports network data. `verify` starts the selected services, runs the acceptance suite and powers off the guest. Each test run writes its private files under `.work/runs`. Use `--accelerator kvm` with access to the local KVM device, `--accelerator tcg` for software emulation, or `--kernel /boot/vmlinuz-RELEASE` to select a compatible installed kernel.
 
-The base guest has 2 vCPUs and 640 MiB. With one optional profile enabled, it allocates 1,536 MiB, and each additional profile adds 512 MiB. The guest uses RAM and a compressed initramfs, with no persistent VM disk. Confirm measured resources and elapsed time in the [run manifest](../evidence/manifest.json).
+The base guest has 2 vCPUs and 640 MiB. The Prometheus and Grafana profile uses at least 3 GiB. It uses 4 GiB with headed Chromium. The guest uses RAM and a compressed initramfs, with no persistent VM disk. Confirm measured resources and elapsed time in the [run manifest](../evidence/manifest.json).
 
 The Ansible playbook delegates to these same local entry points with a fixed localhost inventory. Use a local Ansible Core 2.16 or newer installation compatible with the host Python, or supply a wheelhouse with the core package and its dependencies. The launcher installs explicit wheel files into a temporary workspace environment with dependency resolution and indexes disabled. Its check mode runs only the plan.
 
@@ -24,6 +24,21 @@ python3 automation/run.py --wheelhouse /path/to/ansible-wheels --check
 ```
 
 Pass `--ids-bundle` and `--observability-bundle` to the Python controller or Ansible launcher to select live engine validation. The [integration guide](integrations.md) defines the local assets and checks for each profile.
+
+## Targeted extension verification
+
+Use verified RPMs, release archives, and compatible wheels. The [dependency receipt](../evidence/dependency-provenance.json) records the release versions, SHA-256 values, package sources and RPM signing key fingerprints used for the Fedora 45 run. Keep release files and package manager artifacts under `.work`.
+
+```sh
+python3 automation/run.py --addons-only --guest-ansible --accelerator kvm \
+  --wheelhouse .work/packages/ansible \
+  --ids-bundle .work/ids-bundle \
+  --observability-bundle .work/dependencies/observability \
+  --visible-browser-dir .work/packages/display/root
+python3 labctl.py report --run-id RUN_ID --export-evidence
+```
+
+Use the run identifier printed by Ansible. The export writes the targeted report and artifacts under `evidence/add-ons`. The governed communication matrix has its own baseline run. Use `python3 labctl.py identity --accelerator kvm` twice to exercise independent TLS and WireGuard enrollment. Compare the public fingerprints in the two private `identity-boot.json` artifacts. The public summary contains the comparison and enrollment results.
 
 ## Live operations
 

@@ -1,0 +1,39 @@
+{
+  "run": "20261127T102856682265Z",
+  "mode": "verify-addons",
+  "accelerator": "kvm",
+  "guest_memory_mib": 4096,
+  "vcpus": 2,
+  "elapsed_seconds": 97.63,
+  "peak_host_qemu_rss_kib": 3697624,
+  "initramfs_bytes": 703115637,
+  "initramfs_sha256": "bc88396af1b7e97dda27ba7646f1bd0c078105b87dc7ad9f5975ce58dcea1782",
+  "kernel_release": "7.3.4-300.fc45.x86_64",
+  "host_network_attachment": false,
+  "profiles": [
+    "base",
+    "ids",
+    "observability",
+    "visible_browser",
+    "ansible",
+    "inline_ips"
+  ],
+  "policy_sha256": "92adece84eee2b65aa1157f9b7c7473d929ee136ba5baa6ee64b9139defcc69d",
+  "artifact_sha256": {
+    "vpn-events.jsonl": "90718f991125a575d7faffddc7b98a5633f02ff18b4a935063d2bbcf7b1b4d77",
+    "ids-observations.json": "5295e6dad6ef31d8be8bf1819af00a7f219211ad918a6fe95355cc0b795f10b7",
+    "ips-observations.json": "6488323b36ade87c42c9449879f606cb64716917bbd087508e29b6673313a091",
+    "observability.json": "4d32418eda7de4745e0f473f35ab6eb622de6d982827d648379de52f003793e3",
+    "grafana.png": "aad6539b4b45650ea4180e2d16e0cc946ec6add8a204c74afb830949f156fa11",
+    "dashboard-visible.png": "3719088248ae97281a3ca77e74235a9953feaa29620f7134fdb163d8c1b9beee",
+    "browser-observations.json": "8cc37a869438f9d1beea05e91f92e7f50941b1b08966d98439ecd240ce3142af",
+    "ansible-observations.json": "55e155f2f72b04950ce79668f99cf3d7c8c92300c6352a5ea91fa439e75c2d4d",
+    "network.json": "ca817cfd3f089f4c1533babe5e9ee5d81af6d207041d0bb63ceff1a7ff44001d",
+    "telemetry.json": "a42e7cf3e939c25debc95816edf89e84054714f7b2aaef8478b0c75a2fc101ed",
+    "firewall-events.log": "78e44f659932d6c5fdcdb714b6b2bf13329ef8702ae63a60313e275ac69b8f0f",
+    "identity-events.jsonl": "7e9dfba2f2c008caa5a3d332cad1eb08d2c9fb9d5d58cad4532bba411162ba98",
+    "checks.json": "9b5f0d64128e260632f1c5dec5736489f3266d7919b04ea21007c8e17b811fd3"
+  },
+  "qemu_exit": 0,
+  "timed_out": false
+}

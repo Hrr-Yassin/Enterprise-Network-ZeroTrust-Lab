@@ -1,0 +1,38 @@
+{
+  "runs": [
+    {
+      "id": "20261127T100239277391Z",
+      "elapsed_seconds": 10.76,
+      "private_observation_sha256": "b4b67ad18ce4b0490576cfed6e7921ef13cdda0f403ee2d31407278d691575d3"
+    },
+    {
+      "id": "20261127T100250186432Z",
+      "elapsed_seconds": 10.36,
+      "private_observation_sha256": "7d7a9bd1d1759be4aec892bc8acc43a1001d42ff56c2af094e93caa3fd6ac25f"
+    }
+  ],
+  "same_guest_image_and_policy": true,
+  "different_public_fingerprints_across_boots": {
+    "certificates_and_trust_roots": [
+      "app_service",
+      "clients_ca",
+      "employee",
+      "operator",
+      "services_ca"
+    ],
+    "wireguard_peers": [
+      "ops_vpn",
+      "user_vpn"
+    ]
+  },
+  "mTLS_roles_authenticated_on_both_boots": [
+    "employee",
+    "operator"
+  ],
+  "wireguard_peers_authenticated_on_both_boots": [
+    "ops_vpn",
+    "user_vpn"
+  ],
+  "leaf_lifetime_hours": 48,
+  "issuer_keys_removed_on_both_boots": true
+}

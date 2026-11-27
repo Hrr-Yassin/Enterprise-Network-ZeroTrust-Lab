@@ -1,0 +1,25 @@
+{
+  "capture": {
+    "addressed": false,
+    "interface": "mon0",
+    "mode": "passive",
+    "namespace": "monitor"
+  },
+  "fixture": {
+    "port": 53,
+    "query": "ids-check.lab.test",
+    "resolver": "10.77.40.10",
+    "source": "10.77.20.10",
+    "transport": "udp"
+  },
+  "suricata": {
+    "event_type": "alert",
+    "signature_id": 9900101,
+    "version": "8.0.8"
+  },
+  "zeek": {
+    "connection_uid_matched": true,
+    "dns_rcode": 0,
+    "version": "9.0.1"
+  }
+}

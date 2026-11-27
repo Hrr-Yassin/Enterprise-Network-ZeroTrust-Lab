@@ -4,7 +4,9 @@ A reproducible network security lab for Fedora x86-64. A disposable QEMU guest c
 
 The QEMU guest starts without a virtual NIC. The WAN is an Ethernet bridge inside the guest. Every service, test target, and packet capture remains inside that guest.
 
-**Verified result.** The KVM-backed run passed 68 acceptance checks, including all 49 communication-matrix paths, certificate and WireGuard revocation, a captured DNS canary, and firewall and service recovery. The weighted portfolio assessment is **90/100**. [Security assessment](docs/assessment.md)
+**Verified portfolio readiness is 100/100 on the requested lab rubric.** The KVM baseline passed 68 checks, including all 49 communication-matrix paths. The targeted integration run passed five additional checks and preserved the baseline firewall fingerprint. TLS and WireGuard identities also authenticated after fresh enrollment on two independent boots. [Security assessment](docs/assessment.md)
+
+Suricata detected the mirrored DNS canary and blocked it in a scoped inline exercise. Zeek correlated the DNS and connection records. Prometheus scraped via mTLS and fired the canary alert, Grafana returned live data for all 11 panels, and Ansible applied and checked the guest policy idempotently. Both dashboard views were rendered with headed Chromium in the guest. [Targeted results](evidence/add-ons/results.md)
 
 ## Run the lab
 
@@ -17,6 +19,8 @@ python3 labctl.py report
 ```
 
 Use `python3 labctl.py live` to bring up the services and open the guest console. To render a dashboard screenshot during verification, run `python3 labctl.py verify --browser --timeout 420` with a local Chromium Headless Shell installation.
+
+Use the targeted workflow to verify Suricata, Zeek, Prometheus, Grafana, Ansible, and headed Chromium from verified local packages. It records its own evidence without rerunning the communication matrix. [Targeted commands](docs/operations.md#targeted-extension-verification) · [Dependency receipt](evidence/dependency-provenance.json)
 
 | Project material | Contents |
 | --- | --- |
@@ -34,6 +38,6 @@ Use `python3 labctl.py live` to bring up the services and open the guest console
 - [Policy model](config/lab.json) and [generated edge rules](config/edge.nft)
 - [Python controller](labctl.py) and [Ansible playbook](automation/site.yml)
 - [Run manifest](evidence/manifest.json), [firewall events](evidence/firewall-events.log), [role decisions](evidence/identity-events.jsonl), and [one-packet synthetic DNS capture](evidence/synthetic-dns.pcap)
-- [Operations dashboard](evidence/dashboard.html) and [Chromium screenshot](evidence/dashboard.png)
+- [Live Grafana in Chromium](evidence/add-ons/grafana.png) and [operator dashboard in Chromium](evidence/add-ons/dashboard-visible.png)
 
 The [handoff](HANDOFF.md) documents the local repository and evidence export. The source is available under the [MIT License](LICENSE).

@@ -1,0 +1,25 @@
+---
+- name: Check and record the detached guest's active firewall policy
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Validate the live firewall fingerprint
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/python3
+          - -m
+          - lab.operate
+          - status
+        expand_argument_vars: false
+      register: policy
+      check_mode: false
+      changed_when: false
+
+    - name: Write the compliance record inside the guest
+      ansible.builtin.copy:
+        dest: /run/ztlab/ansible/compliance.txt
+        content: "{{ policy.stdout }}\n"
+        mode: "0600"

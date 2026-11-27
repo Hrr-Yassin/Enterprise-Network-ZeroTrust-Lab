@@ -1,5 +1,6 @@
 """Run the acceptance suite and assemble evidence inside the detached guest."""
 
+import hashlib
 import json
 import os
 import subprocess
@@ -7,8 +8,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from lab import ids, observability
-from lab.guest import PYTHON, TELEMETRY, guard, run, source_namespace, start, write_json
+from lab import ansible, ids, observability, visible_browser
+from lab.guest import PYTHON, RUN, SECRETS, TELEMETRY, command, guard, run, source_namespace, start, write_json
 from lab.model import address, endpoint, firewall
 from lab.probe import perform
 from lab.runtime import emit
@@ -77,7 +78,8 @@ def verify_ids(lab):
     try:
         reply = dns(lab, "employee", name=CANARY)
         expect(reply.get("answers") == [address(lab.policy, "api")], f"Canary DNS fixture returned {reply}")
-        return ids.check(engines, address(lab.policy, "employee"), address(lab.policy, "resolver"))
+        return ids.check(engines, address(lab.policy, "employee"), address(lab.policy, "resolver"),
+                         lambda: dns(lab, "employee"))
     finally:
         ids.stop_engines(engines)
 
@@ -102,6 +104,7 @@ def snapshot(lab):
         "sampled_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "segments": lab.segment_status(), "firewall": lab.firewall_metrics(), "firewall_events": lab.firewall_events(),
         "vpn": lab.peer_status(), "sensor": json.loads((TELEMETRY / "sensor.json").read_text()),
+        "ids": ids.telemetry(),
         "health": availability, "compliant": lab.fingerprint() == lab.baseline,
         "infrastructure": {"memory_total_mib": round(memory["MemTotal"] / 1024),
                            "memory_available_mib": round(memory["MemAvailable"] / 1024),
@@ -368,9 +371,8 @@ class Suite:
         return "Root guest and edge have no default route, the WAN is a local bridge, and edge IPv6 is disabled"
 
 
-def verify(lab):
-    guard()
-    suite = Suite(lab, provision(lab))
+def verify_baseline(suite):
+    lab = suite.lab
     print("ZTLAB SERVICES READY. Running matrix probes.", flush=True)
     suite.check("guest_no_uplink", "isolation", suite.guest_isolation)
     suite.permits()
@@ -398,15 +400,59 @@ def verify(lab):
     ]
     for name, area, operation in tests:
         suite.check(name, area, operation)
-    if ids.enabled():
-        suite.check("suricata_zeek_live", "monitoring", lambda: verify_ids(lab))
-    if observability.enabled():
-        suite.check("prometheus_grafana_live", "monitoring", observability.verify)
     from lab.browser import BROWSER, screenshot
     if Path(BROWSER).is_file():
         suite.check("chromium_dashboard_render", "monitoring", screenshot)
+
+
+def verify_extensions(suite):
+    lab = suite.lab
+    if observability.enabled():
+        def exercise():
+            prior = json.loads((TELEMETRY / "sensor.json").read_text())["alert_count"]
+            if ids.enabled():
+                suite.check("suricata_zeek_live", "monitoring", lambda: verify_ids(lab))
+            reply = dns(lab, "employee", name=CANARY)
+            expect(reply.get("answers") == [address(lab.policy, "api")], "DNS canary did not return the fixture answer")
+            await_sample(TELEMETRY / "sensor.json", lambda sample: sample["alert_count"] > prior)
+            for name, peer in lab.peers.items():
+                expect(status(http(lab, name, peer["service"], peer["identity"])) == 200,
+                       "Fixture VPN service did not supply the monitoring sample")
+            suite.deny(next(rule for rule in lab.policy["denials"] if rule["id"] == "guest_app"))
+            snapshot(lab)
+
+        def visible_dashboards():
+            response = http(lab, "admin", "dashboard", "operator")
+            expect(status(response) == 200, "The live HTTPS operator dashboard did not authorize its fixture operator")
+            password = (observability.STATE / "grafana-operator-password").read_text().strip()
+            return visible_browser.verify(response["body"], password)
+
+        browser_check = (lambda: suite.check("chromium_live_dashboards", "monitoring", visible_dashboards)) \
+            if visible_browser.enabled() else None
+        suite.check("prometheus_grafana_live", "monitoring", lambda: observability.verify(
+            exercise, browser_check, require_ids=ids.enabled(),
+        ))
+    elif ids.enabled():
+        suite.check("suricata_zeek_live", "monitoring", lambda: verify_ids(lab))
+    if ids.enabled():
+        suite.check("suricata_inline_prevention", "monitoring", lambda: ids.verify_inline(
+            lab, lambda name: dns(lab, "employee", name=name),
+        ))
+    if ansible.enabled():
+        suite.check("ansible_guest_execution", "automation", lambda: ansible.verify(lab))
+
+
+def verify(lab, addons_only=False):
+    guard()
+    suite = Suite(lab, provision(lab))
+    if addons_only:
+        print("ZTLAB SERVICES READY. Running targeted extension acceptance.", flush=True)
+    else:
+        verify_baseline(suite)
+    verify_extensions(suite)
     for name in ("synthetic-dns.pcap", "packet-summary.txt", "dashboard.html", "dashboard.png", "firewall-backup.nft",
-                 "vpn-events.jsonl", "ids-observations.json", "observability.json"):
+                 "vpn-events.jsonl", "ids-observations.json", "ips-observations.json", "observability.json", "grafana.png",
+                 "dashboard-visible.png", "browser-observations.json", "ansible-observations.json"):
         path = TELEMETRY / name
         if path.is_file():
             emit(name, path.read_bytes())
@@ -414,15 +460,44 @@ def verify(lab):
     emit("telemetry.json", (TELEMETRY / "status.json").read_bytes())
     emit("firewall-events.log", ("\n".join(lab.firewall_events()) + "\n").encode())
     emit("identity-events.jsonl", ("\n".join(json.dumps(row, sort_keys=True) for row in suite.fixtures.events()) + "\n").encode())
-    report = {"checks": suite.checks, "tested_permits": sum(len(rule["protocols"]) for rule in lab.policy["permits"]),
-              "tested_denials": len(lab.policy["denials"])}
+    report = {"checks": suite.checks,
+              "tested_permits": 0 if addons_only else sum(len(rule["protocols"]) for rule in lab.policy["permits"]),
+              "tested_denials": 0 if addons_only else len(lab.policy["denials"])}
     emit("checks.json", (json.dumps(report, indent=2) + "\n").encode())
     passed = sum(check["passed"] for check in suite.checks)
     print(f"ZTLAB ACCEPTANCE {passed}/{len(suite.checks)} passed", flush=True)
 
 
+def verify_identity(lab):
+    guard()
+    provision(lab)
+    expect(status(http(lab, "employee", "app", "employee")) == 200, "New employee enrollment did not authenticate")
+    expect(status(http(lab, "admin", "ops", "operator")) == 200, "New operator enrollment did not authenticate")
+    for name, peer in lab.peers.items():
+        expect(status(http(lab, name, peer["service"], peer["identity"])) == 200 and
+               lab.peer_status()[name]["handshake_recent"], "New WireGuard peer enrollment did not authenticate")
+    paths = {"services_ca": SECRETS / "services.pem", "clients_ca": SECRETS / "clients.pem",
+             "employee": SECRETS / "employee.pem", "operator": SECRETS / "operator.pem",
+             "app_service": RUN / "services/app/server.pem"}
+    for name in ("employee", "operator", "app_service"):
+        expect(command("openssl", "x509", "-noout", "-checkend", "86400", "-in", paths[name], check=False).returncode == 0,
+               "A newly enrolled leaf expires too early")
+        expect(command("openssl", "x509", "-noout", "-checkend", "172801", "-in", paths[name], check=False).returncode != 0,
+               "A newly enrolled leaf exceeds its two-day lifetime")
+    expect(not any((SECRETS / f"{ca}.key").exists() for ca in ("services", "clients", "untrusted")),
+           "An issuer private key survived enrollment")
+    peers = {name: hashlib.sha256(key.encode()).hexdigest() for name, key in lab.peer_keys.items()}
+    evidence = {"cert_fingerprints": {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in paths.items()},
+                "wireguard_public_key_digests": peers, "authenticated_mtls_roles": ["employee", "operator"],
+                "authenticated_wireguard_peers": sorted(peers), "leaf_lifetime_hours": 48, "issuer_keys_removed": True}
+    emit("identity-boot.json", json.dumps(evidence, indent=2).encode())
+    print("ZTLAB IDENTITY ENROLLMENT PASSED. Fresh TLS identities and two WireGuard peers authenticated.", flush=True)
+
+
 def live(lab):
     provision(lab)
+    if ansible.enabled():
+        print(ansible.verify(lab), flush=True)
     engines = ids.start_engines() if ids.enabled() else None
     try:
         if observability.enabled():

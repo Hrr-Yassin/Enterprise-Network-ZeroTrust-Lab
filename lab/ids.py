@@ -20,6 +20,8 @@ CONFIG = ROOT / "monitoring"
 CAPTURE_DEVICE = "mon0"
 CAPTURE_NAMESPACE = "monitor"
 CANARY_SID = 9900101
+INLINE_SID = 9900102
+QUEUE = 81
 EVIDENCE = "ids-observations.json"
 
 
@@ -77,7 +79,15 @@ def validate_bundle(source):
 
 def stage_bundle(root, source):
     """Copy only the selected runtime payload into a fresh initramfs staging tree."""
+    from lab.build import copy
+    from lab.observability import library_paths
+
     files = validate_bundle(source)
+    preferred = {path.name: original for path, original in files.items()
+                 if len(path.parts) == 2 and path.parts[0] in {"lib", "lib64"}}
+    for guest_path, original in library_paths([files[Path("bin") / name] for name in ENGINES], preferred).items():
+        if Path(guest_path).name not in preferred:
+            copy(original, root, guest_path)
     target = root / PREFIX.relative_to("/")
     for relative, resolved in files.items():
         destination = target / relative
@@ -262,19 +272,24 @@ def _zeek_correlation(output, source, resolver):
                for row in _records(output / "conn.log"))
 
 
-def check(engines, source_ip, resolver_ip):
+def check(engines, source_ip, resolver_ip, pulse):
     """Verify independently observed alerts and correlated DNS and connection records."""
     guard()
     active = {engine.name: engine for engine in engines}
     suricata = active["suricata"]
     zeek = active["zeek"]
     deadline = time.monotonic() + 35
+    next_pulse = time.monotonic() + 6
     while True:
         _require_running(engines)
         alert = _suricata_alert(suricata.output / "eve.json", source_ip, resolver_ip)
         correlation = _zeek_correlation(zeek.output, source_ip, resolver_ip)
         if alert and correlation:
             break
+        if not correlation and time.monotonic() >= next_pulse:
+            # A fresh fixture packet advances Zeek's live network time past the idle timer.
+            pulse()
+            next_pulse = time.monotonic() + 6
         if time.monotonic() >= deadline:
             missing = []
             if not alert:
@@ -292,3 +307,87 @@ def check(engines, source_ip, resolver_ip):
         "zeek": {"version": zeek.version, "dns_rcode": 0, "connection_uid_matched": True},
     })
     return f"Suricata {suricata.version} matched SID {CANARY_SID}. Zeek {zeek.version} correlated the DNS and UDP connection records."
+
+
+def telemetry():
+    path = TELEMETRY / "ids"
+    return {
+        "suricata_alerts": sum(row.get("event_type") == "alert" for row in _records(path / "suricata/eve.json")),
+        "zeek_dns": sum(1 for _ in _records(path / "zeek/dns.log")),
+        "zeek_connections": sum(1 for _ in _records(path / "zeek/conn.log")),
+    }
+
+
+def verify_inline(lab, query):
+    """Activate Suricata on one isolated DNS path and remove the queue afterward."""
+    guard()
+    output = TELEMETRY / "ids-inline"
+    output.mkdir(mode=0o700)
+    run("modprobe", "nfnetlink_queue")
+    run("modprobe", "nft_queue")
+    source, resolver = (lab.policy["nodes"][name]["ip"] for name in ("employee", "resolver"))
+    answer = lab.policy["nodes"]["api"]["ip"]
+    before = lab.fingerprint()
+    queue = f"""table inet ztlab_inline {{
+  chain canary {{
+    type filter hook forward priority 10; policy accept;
+    ip saddr {source} ip daddr {resolver} udp dport 53 queue num {QUEUE}
+  }}
+}}
+"""
+    active = False
+    worker = None
+    try:
+        with (output / "engine.log").open("wb") as log, source_namespace("edge"):
+            worker = subprocess.Popen(
+                [PREFIX / "bin/suricata", "-q", str(QUEUE), "--runmode", "workers",
+                 "-c", CONFIG / "suricata.yaml", "-S", CONFIG / "inline.rules", "-l", output],
+                cwd=output, env=_environment(), stdin=subprocess.DEVNULL, stdout=log, stderr=log,
+            )
+        deadline = time.monotonic() + 25
+        with source_namespace("edge"):
+            while time.monotonic() < deadline:
+                if worker.poll() is not None:
+                    raise RuntimeError(f"Suricata inline exited with status {worker.returncode}")
+                if any(line.split()[0] == str(QUEUE) for line in
+                       Path("/proc/net/netfilter/nfnetlink_queue").read_text().splitlines() if line.strip()):
+                    break
+                time.sleep(0.15)
+            else:
+                raise RuntimeError("Suricata did not subscribe to the guest NFQUEUE")
+        run("nft", "-f", "-", namespace="edge", data=queue)
+        active = True
+        permitted = query("app.lab.test").get("answers") == [answer]
+        blocked = query(CANARY).get("result") == "timeout"
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            event = next((record.get("alert") for record in _records(output / "eve.json")
+                          if record.get("event_type") == "alert" and record.get("src_ip") == source
+                          and record.get("dest_ip") == resolver
+                          and record.get("alert", {}).get("signature_id") == INLINE_SID), None)
+            if event and event.get("action") == "blocked":
+                break
+            time.sleep(0.1)
+        else:
+            raise AssertionError("Suricata did not log a blocked verdict for the synthetic inline canary")
+    finally:
+        try:
+            if active:
+                run("nft", "delete", "table", "inet", "ztlab_inline", namespace="edge")
+        finally:
+            if worker is not None and worker.poll() is None:
+                worker.terminate()
+                try:
+                    worker.wait(5)
+                except subprocess.TimeoutExpired:
+                    worker.kill()
+                    worker.wait()
+    if not permitted or not blocked or query(CANARY).get("answers") != [answer] or lab.fingerprint() != before:
+        raise AssertionError("Inline exercise did not pass normal DNS, drop the canary, and restore the firewall")
+    write_json(TELEMETRY / "ips-observations.json", {
+        "engine": "Suricata", "capture": "edge NFQUEUE", "queue": QUEUE,
+        "source": source, "resolver": resolver, "canary": CANARY, "signature_id": INLINE_SID,
+        "normal_dns_passed": True, "canary_timed_out": True, "suricata_verdict": "blocked",
+        "canary_recovered": True, "firewall_fingerprint_restored": True,
+    })
+    return "Suricata allowed ordinary DNS and blocked the synthetic canary inline. Removed the queue and verified recovery."

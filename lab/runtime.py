@@ -230,9 +230,11 @@ def run_main():
             raise RuntimeError("One or more lab networks did not come up")
         emit("network.json", json.dumps({"segments": status, "firewall_sha256": lab.baseline}).encode())
         return
-    from lab.verify import verify, live
-    if mode == "verify":
-        verify(lab)
+    from lab.verify import verify, verify_identity, live
+    if mode in {"verify", "verify-addons"}:
+        verify(lab, addons_only=(mode == "verify-addons"))
+    elif mode == "identity":
+        verify_identity(lab)
     else:
         live(lab)
 

@@ -1,0 +1,12 @@
+{
+  "browser": "Chrome/158.0.8127.18",
+  "dimensions": [
+    1600,
+    1280
+  ],
+  "display": "Xvfb with no TCP listener",
+  "grafana_live_query_responses": 10,
+  "grafana_path": "/d/ztlab-observability/enterprise-network-zero-trust",
+  "mode": "headed X11",
+  "operator_view": "authorized in-guest HTTPS response"
+}

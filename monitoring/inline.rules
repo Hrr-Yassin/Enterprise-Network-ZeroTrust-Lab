@@ -1,0 +1,1 @@
+drop dns any any -> any 53 (msg:"ZTLAB inline DNS canary"; dns.query; content:"ids-check.lab.test"; nocase; startswith; endswith; sid:9900102; rev:1;)
